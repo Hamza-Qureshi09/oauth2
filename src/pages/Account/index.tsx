@@ -11,7 +11,7 @@ function Account() {
 			// eslint-disable-next-line react-hooks/immutability
 			window.location.href =
 				new URL(
-					"/auth/api/oauth2/authorize",
+					"/oauth/authorize",
 					import.meta.env.VITE_API_ORIGIN,
 				).toString() + window.location.search;
 
