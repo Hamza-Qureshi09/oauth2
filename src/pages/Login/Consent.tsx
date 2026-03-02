@@ -1,6 +1,6 @@
 import FormCrash from "@/components/FormCrash";
 import FormWrapper from "@/components/FormWrapper";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Field, FieldDescription } from "@/components/ui/field";
 import { Skeleton } from "@/components/ui/skeleton";
-import { oauth2Client } from "@/lib/auth";
+// import { oauth2Client } from "@/lib/auth";
 import { cn, getInitials } from "@/lib/utils";
 import { EllipsisIcon } from "lucide-react";
 import React from "react";
@@ -19,37 +19,50 @@ import { Trans, useTranslation } from "react-i18next";
 import { Link, useSearchParams } from "react-router";
 import { toast } from "sonner";
 import useSWR from "swr";
+import { ThunderSDK } from "thunder-sdk";
 
 function Consent() {
 	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 
-	const { data, error, isLoading } = useSWR("oauth2Client", () =>
-		oauth2Client.oauth2.publicClient({
-			query: { client_id: searchParams.get("client_id") ?? "" },
-		}),
+	const { data, error, isLoading } = useSWR(
+		"oauth2Client",
+		async () =>
+			await ThunderSDK.oauthClients.get({
+				params: { id: searchParams.get("client_id") ?? "" },
+			}),
 	);
+
+	console.log(data?.results);
 
 	const scopes = React.useMemo(
 		() => searchParams.get("scopes")?.trim()?.split(/\s+/),
 		[searchParams],
 	);
 
-	async function consentAction(action: boolean) {
-		const { data, error } = await oauth2Client.oauth2.consent({
-			accept: action,
+	async function consentAction() {
+		const Response = await ThunderSDK.oauth.consent({
+			query: {
+				client_id: searchParams.get("client_id") ?? "",
+				redirect_uri: searchParams.get("redirect_uri") ?? "",
+				state: searchParams.get("state") ?? "",
+				scope: searchParams.get("scopes") ?? "",
+				response_type: (searchParams.get("response_type") as "code") ?? "code",
+				code_challenge: searchParams.get("code_challenge") ?? "",
+				code_challenge_method:
+					(searchParams.get("code_challenge_method") as "S256") ?? "",
+			},
+			body: { resourceGrant: {} },
 		});
 
-		if (error) {
-			toast.error(error.message);
+		if (!Response?._id) {
+			toast.error(t("Failed to process consent"));
 			return;
 		}
-
-		if (data.redirect) window.location.href = data.uri;
 	}
 
-	const client = data?.data;
-	const clientName = client?.client_name;
+	//   const client = data?.results?.[0];
+	const clientName = "unknown";
 
 	return (
 		<FormWrapper
@@ -61,7 +74,7 @@ function Consent() {
 							<Skeleton className="w-16 h-16" />
 						) : (
 							<React.Fragment>
-								<AvatarImage src={client?.logo_uri} alt={clientName} />
+								{/* <AvatarImage src={client?.logo_uri} alt={clientName} /> */}
 								<AvatarFallback className="rounded-md">
 									{getInitials(clientName)}
 								</AvatarFallback>
@@ -107,11 +120,13 @@ function Consent() {
 							<Button
 								variant={"outline"}
 								className={"grow"}
-								onClick={() => consentAction(false)}
+								onClick={() => {
+									alert("consent denied");
+								}}
 							>
 								{t("Cancel")}
 							</Button>
-							<Button className={"grow"} onClick={() => consentAction(true)}>
+							<Button className={"grow"} onClick={() => consentAction()}>
 								{t("Authorize")}
 							</Button>
 						</Field>
@@ -121,13 +136,13 @@ function Consent() {
 							<Trans i18nKey={"agreement"}>
 								By authorize the access, you also agree with our third-party
 								apps{" "}
-								<a href={client?.tos_uri} className="text-primary">
-									Terms of Service
-								</a>{" "}
-								and{" "}
-								<a href={client?.policy_uri} className="text-primary">
-									Privacy Policy
-								</a>
+								{/* <a href={client?.tos_uri} className="text-primary">
+                  Terms of Service
+                </a>{" "}
+                and{" "}
+                <a href={client?.policy_uri} className="text-primary">
+                  Privacy Policy
+                </a> */}
 								.
 							</Trans>
 						</FieldDescription>

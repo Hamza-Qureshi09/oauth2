@@ -25,10 +25,12 @@ function SelectOrganization() {
 						<p className="text-sm text-muted-foreground">{org.slug}</p>
 					</div>
 					<Button
-						onClick={() => {
-							authClient.organization.setActive({ organizationId: org.id });
+						onClick={async () => {
+							const response = await authClient.organization.setActive({
+								organizationId: org.id,
+							});
 
-							navigate("/" + window.location.search);
+							if (!response.error) navigate("/" + window.location.search);
 						}}
 					>
 						Select

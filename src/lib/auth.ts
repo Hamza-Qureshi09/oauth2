@@ -5,7 +5,7 @@ import {
 	twoFactorClient,
 	organizationClient,
 } from "better-auth/client/plugins";
-import { oauthProviderClient } from "@better-auth/oauth-provider/client";
+// import { oauthProviderClient } from "@better-auth/oauth-provider/client";
 import { createAuthClient } from "better-auth/react";
 
 const baseClientOpts = {
@@ -24,7 +24,7 @@ export const authClient = createAuthClient({
 	],
 });
 
-export const oauth2Client = createAuthClient({
-	...baseClientOpts,
-	plugins: [oauthProviderClient()],
-});
+// export const oauth2Client = createAuthClient({
+// 	...baseClientOpts,
+// 	plugins: [oauthProviderClient()],
+// });
