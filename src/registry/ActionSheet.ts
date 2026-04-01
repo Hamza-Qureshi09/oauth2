@@ -5,7 +5,7 @@ import Verification from "@/components/Verification";
 export type TActionSheetRegistry = typeof ActionSheetRegistery;
 
 export const ActionSheetRegistery = {
-	verification: Verification,
+  verification: Verification,
 };
 
 export const ActionSheetRef = React.createRef<TActionSheetRef>();

@@ -5,20 +5,20 @@ import { defineConfig } from "vite";
 
 // https://vite.dev/config/
 export default defineConfig({
-	build: {
-		outDir: "./www",
-	},
-	plugins: [
-		react({
-			babel: {
-				plugins: [["babel-plugin-react-compiler"]],
-			},
-		}),
-		tailwindcss(),
-	],
-	resolve: {
-		alias: {
-			"@": path.resolve(__dirname, "./src"),
-		},
-	},
+  build: {
+    outDir: "./www",
+  },
+  plugins: [
+    react({
+      babel: {
+        plugins: [["babel-plugin-react-compiler"]],
+      },
+    }),
+    tailwindcss(),
+  ],
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+    },
+  },
 });

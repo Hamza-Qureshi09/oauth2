@@ -5,29 +5,29 @@ import Github from "@/assets/providers/github.svg";
 import Google from "@/assets/providers/google.svg";
 
 export const authProviders: Record<
-	string,
-	{ icon: string; label: string; invert?: boolean }
+  string,
+  { icon: string; label: string; invert?: boolean }
 > = {
-	google: {
-		icon: Google,
-		label: "Google",
-	},
-	apple: {
-		icon: Apple,
-		label: "Apple",
-		invert: true,
-	},
-	facebook: {
-		icon: Facebook,
-		label: "Facebook",
-	},
-	discord: {
-		icon: Discord,
-		label: "Discord",
-	},
-	github: {
-		icon: Github,
-		label: "Github",
-		invert: true,
-	},
+  google: {
+    icon: Google,
+    label: "Google",
+  },
+  apple: {
+    icon: Apple,
+    label: "Apple",
+    invert: true,
+  },
+  facebook: {
+    icon: Facebook,
+    label: "Facebook",
+  },
+  discord: {
+    icon: Discord,
+    label: "Discord",
+  },
+  github: {
+    icon: Github,
+    label: "Github",
+    invert: true,
+  },
 } as const;

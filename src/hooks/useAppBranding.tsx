@@ -4,30 +4,30 @@ import { getAppBranding, type TAppBranding } from "@/lib/api";
 let appBrandingPromise: Promise<TAppBranding>;
 
 export function useAppBranding() {
-	const [isLoading, setIsLoading] = React.useState(false);
-	const [error, setError] = React.useState<Error | null>(null);
-	const [app, setApp] = React.useState<TAppBranding | null>(null);
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState<Error | null>(null);
+  const [app, setApp] = React.useState<TAppBranding | null>(null);
 
-	React.useEffect(() => {
-		setIsLoading(true);
-		setError(null);
+  React.useEffect(() => {
+    setIsLoading(true);
+    setError(null);
 
-		appBrandingPromise ??= getAppBranding();
+    appBrandingPromise ??= getAppBranding();
 
-		void (async () => {
-			const app = await appBrandingPromise
-				.catch((error) => {
-					setError(error);
-				})
-				.finally(() => setIsLoading(false));
+    void (async () => {
+      const app = await appBrandingPromise
+        .catch((error) => {
+          setError(error);
+        })
+        .finally(() => setIsLoading(false));
 
-			if (app) setApp(app);
-		})();
-	}, []);
+      if (app?.name) setApp(app);
+    })();
+  }, []);
 
-	return {
-		isLoading,
-		error,
-		app,
-	};
+  return {
+    isLoading,
+    error,
+    app,
+  };
 }

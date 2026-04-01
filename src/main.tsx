@@ -9,7 +9,7 @@ import Account from "./pages/Account";
 import Home from "./pages/Account/Home";
 import Profile from "./pages/Account/Profile";
 import ChangePassword from "./pages/ChangePassword";
-import ForgotPassword from "./pages/Login/ForgotPassword";
+import ResetPassword from "./pages/Login/ResetPassword";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Consent from "./pages/Login/Consent";
@@ -18,77 +18,78 @@ import { ThunderSDK } from "thunder-sdk";
 import { toast } from "sonner";
 
 ThunderSDK.init({
-	axiosConfig: {
-		baseURL: import.meta.env.VITE_API_ORIGIN,
-	},
+  axiosConfig: {
+    baseURL: import.meta.env.VITE_API_ORIGIN,
+    withCredentials: true,
+  },
 });
 
 ThunderSDK._axios?.interceptors.response.use(
-	(response) => response,
-	(error) => {
-		toast.error(error.message || "An error occurred");
-		return Promise.reject(error);
-	},
+  (response) => response,
+  (error) => {
+    toast.error(error.message || "An error occurred");
+    return Promise.reject(error);
+  },
 );
 
 const router = createBrowserRouter(
-	[
-		{
-			path: "",
-			element: <App />,
-			children: [
-				{
-					index: true,
-					element: <Navigate to={"/account" + window.location.search} />,
-				},
-				{
-					path: "/account",
-					element: <Account />,
-					children: [
-						{
-							index: true,
-							element: <Home />,
-						},
-						{
-							path: "/account/profile",
-							element: <Profile />,
-						},
-					],
-				},
-				{
-					path: "/select-organization",
-					element: <SelectOrganization />,
-				},
-				{
-					path: "/consent",
-					element: <Consent />,
-				},
-				{
-					path: "/login",
-					element: <Login />,
-				},
-				{
-					path: "/change-password",
-					element: <ChangePassword />,
-				},
-				{
-					path: "/forgot-password",
-					element: <ForgotPassword />,
-				},
-				{
-					path: "/signup",
-					element: <Signup />,
-				},
-			],
-		},
-	],
-	{
-		basename: import.meta.env.BASE_URL,
-	},
+  [
+    {
+      path: "",
+      element: <App />,
+      children: [
+        {
+          index: true,
+          element: <Navigate to={"/account" + window.location.search} />,
+        },
+        {
+          path: "/account",
+          element: <Account />,
+          children: [
+            {
+              index: true,
+              element: <Home />,
+            },
+            {
+              path: "/account/profile",
+              element: <Profile />,
+            },
+          ],
+        },
+        {
+          path: "/select-organization",
+          element: <SelectOrganization />,
+        },
+        {
+          path: "/consent",
+          element: <Consent />,
+        },
+        {
+          path: "/login",
+          element: <Login />,
+        },
+        {
+          path: "/change-password",
+          element: <ChangePassword />,
+        },
+        {
+          path: "/reset-password",
+          element: <ResetPassword />,
+        },
+        {
+          path: "/signup",
+          element: <Signup />,
+        },
+      ],
+    },
+  ],
+  {
+    basename: import.meta.env.BASE_URL,
+  },
 );
 
 createRoot(document.getElementById("root")!).render(
-	<StrictMode>
-		<RouterProvider router={router} />
-	</StrictMode>,
+  <StrictMode>
+    <RouterProvider router={router} />
+  </StrictMode>,
 );

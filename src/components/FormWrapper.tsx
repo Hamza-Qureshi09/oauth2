@@ -10,54 +10,54 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Skeleton } from "./ui/skeleton";
 
 function FormWrapper({
-	children,
-	title,
-	consentLogo,
+  children,
+  title,
+  consentLogo,
 }: {
-	children: React.ReactNode;
-	title: string;
-	consentLogo?: React.ReactNode;
+  children: React.ReactNode;
+  title: string;
+  consentLogo?: React.ReactNode;
 }) {
-	const { t } = useTranslation();
-	const { isLoading, app, error } = useAppBranding();
-	const { isLoading: capLoading } = useCapabilities();
+  const { t } = useTranslation();
+  const { isLoading, app, error } = useAppBranding();
+  const { isLoading: capLoading } = useCapabilities();
 
-	const appName = app?.name ?? "Huruf Tech";
-	const logo = app?.logo ?? HurufLogo;
+  const appName = app?.name ?? "Huruf Tech";
+  const logo = app?.logo ?? HurufLogo;
 
-	const loading = isLoading || capLoading;
+  const loading = isLoading || capLoading;
 
-	return (
-		<div className="flex w-full max-w-sm flex-col gap-3 px-3">
-			<title>
-				{loading
-					? t("Loading OAuth")
-					: error?.message
-						? t("OAuth Crashed")
-						: `${title} - ${app?.name}`}
-			</title>
+  return (
+    <div className="flex w-full max-w-sm flex-col gap-3 px-3">
+      <title>
+        {loading
+          ? t("Loading OAuth")
+          : error?.message
+            ? t("OAuth Crashed")
+            : `${title} - ${app?.name}`}
+      </title>
 
-			<div className="flex items-center gap-3 self-center">
-				{consentLogo}
-				<Avatar className="rounded-xl size-16 bg-transparent">
-					{loading ? (
-						<Skeleton className="w-16 h-16" />
-					) : (
-						<Link to="/">
-							<AvatarImage src={logo} alt={appName} />
-							<AvatarFallback>
-								<AvatarImage src={HurufLogo} alt={"Huruf tech"} />
-							</AvatarFallback>
-						</Link>
-					)}
-				</Avatar>
-			</div>
+      <div className="flex items-center gap-3 self-center">
+        {consentLogo}
+        <Avatar className="rounded-xl size-16 bg-transparent">
+          {loading ? (
+            <Skeleton className="w-16 h-16" />
+          ) : (
+            <Link to="/">
+              <AvatarImage src={logo} alt={appName} />
+              <AvatarFallback>
+                <AvatarImage src={HurufLogo} alt={"Huruf tech"} />
+              </AvatarFallback>
+            </Link>
+          )}
+        </Avatar>
+      </div>
 
-			{loading ? <FormSkeleton /> : children}
+      {loading ? <FormSkeleton /> : children}
 
-			<PoweredBy />
-		</div>
-	);
+      <PoweredBy />
+    </div>
+  );
 }
 
 export default FormWrapper;
