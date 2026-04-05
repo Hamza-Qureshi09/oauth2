@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogPanel,
   DialogPopup,
@@ -30,20 +29,72 @@ import { authClient } from "@/lib/auth";
 import { toast } from "sonner";
 import VerifyAuthenticator from "./VerifyAuthenticator";
 import type { DialogRootActions } from "@base-ui/react";
+import SaveRecoveryCodes from "./SaveRecoverCodes";
 
 const DefaultForm = {
   issuer: "",
   password: "",
 };
 
-export type TAuthData = { totpURI: string; backupCodes: string[] };
+export const actionsRef = React.createRef<DialogRootActions>();
 
-export const setupTwoFactorRef = React.createRef<DialogRootActions>();
+export type TAuthData = { totpURI: string; backupCodes: string[] };
 
 function SetupTwoFactor() {
   const { t } = useTranslation();
-  const [showPassword, setShowPassword] = React.useState(false);
+  const [open, setOpen] = React.useState(false);
   const [authData, setAuthData] = React.useState<TAuthData>();
+  const [step, setStep] = React.useState(0);
+
+  React.useEffect(() => {
+    if (authData) setStep(1);
+  }, [authData]);
+
+  return (
+    <>
+      <Dialog
+        actionsRef={actionsRef}
+        open={open}
+        onOpenChange={(isOpen) => {
+          if (!isOpen) {
+            setStep(0);
+            setAuthData(undefined);
+          }
+          setOpen(isOpen);
+        }}
+      >
+        <DialogTrigger
+          render={(props) => (
+            <Button size="sm" {...props}>
+              {t("Enable")}
+            </Button>
+          )}
+        ></DialogTrigger>
+
+        {step === 0 ? (
+          <VerifyIdentity onSuccess={setAuthData} />
+        ) : step === 1 ? (
+          <VerifyAuthenticator
+            authData={authData}
+            onVerifyComplete={() => setStep(2)}
+          />
+        ) : step === 2 ? (
+          <SaveRecoveryCodes backupCodes={authData?.backupCodes ?? []} />
+        ) : null}
+      </Dialog>
+    </>
+  );
+}
+
+export default SetupTwoFactor;
+
+function VerifyIdentity({
+  onSuccess,
+}: {
+  onSuccess: (authData: TAuthData) => void;
+}) {
+  const { t } = useTranslation();
+  const [showPassword, setShowPassword] = React.useState(false);
 
   const { register, handleSubmit, formState, reset } = useForm<
     typeof DefaultForm
@@ -59,93 +110,70 @@ function SetupTwoFactor() {
       return;
     }
 
-    setAuthData(data);
+    onSuccess(data);
     reset();
   };
 
   return (
-    <Dialog
-      actionsRef={setupTwoFactorRef}
-      onOpenChange={(open) => {
-        if (open === false) {
-          setAuthData(undefined);
-          setShowPassword(false);
-        }
-      }}
-    >
-      <DialogTrigger
-        render={(props) => (
-          <Button size="sm" {...props}>
-            {t("Enable")}
-          </Button>
-        )}
-      ></DialogTrigger>
-      <DialogPopup>
-        <DialogHeader>
-          <DialogTitle>{t("Enable Two Step Authentication")}</DialogTitle>
-          <DialogDescription>
-            {t("Verify your identity to enable it")}
-          </DialogDescription>
-        </DialogHeader>
-        <DialogPanel>
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <FieldGroup>
-              <Field>
-                <FieldLabel htmlFor="issuer">{t("Issuer")}</FieldLabel>
-                <Input
-                  id="issuer"
-                  type="text"
-                  placeholder={t("e.g My Application")}
-                  {...register("issuer", {
-                    required: t("Issuer is required!"),
+    <DialogPopup>
+      <DialogHeader>
+        <DialogTitle>{t("Enable Two Step Authentication")}</DialogTitle>
+        <DialogDescription>
+          {t("Verify your identity to enable it")}
+        </DialogDescription>
+      </DialogHeader>
+      <DialogPanel>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <FieldGroup>
+            <Field>
+              <FieldLabel htmlFor="issuer">{t("Issuer")}</FieldLabel>
+              <Input
+                id="issuer"
+                type="text"
+                placeholder={t("e.g My Application")}
+                {...register("issuer", {
+                  required: t("Issuer is required!"),
+                })}
+              />
+
+              <FieldError>{formState.errors.issuer?.message}</FieldError>
+            </Field>
+
+            <Field>
+              <FieldLabel htmlFor="password">{t("Password")}</FieldLabel>
+              <InputGroup>
+                <InputGroupInput
+                  id="password"
+                  autoComplete="current-password webauthn"
+                  type={showPassword ? "text" : "password"}
+                  {...register("password", {
+                    required: t("Password is required!"),
                   })}
                 />
+                <InputGroupAddon align="inline-end">
+                  <Button
+                    size="icon-sm"
+                    variant="ghost"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {!showPassword ? <EyeIcon /> : <EyeOffIcon />}
+                  </Button>
+                </InputGroupAddon>
+              </InputGroup>
+            </Field>
 
-                <FieldError>{formState.errors.issuer?.message}</FieldError>
-              </Field>
-
-              <Field>
-                <FieldLabel htmlFor="password">{t("Password")}</FieldLabel>
-                <InputGroup>
-                  <InputGroupInput
-                    id="password"
-                    autoComplete="current-password webauthn"
-                    type={showPassword ? "text" : "password"}
-                    {...register("password", {
-                      required: t("Password is required!"),
-                    })}
-                  />
-                  <InputGroupAddon align="inline-end">
-                    <Button
-                      size="icon-sm"
-                      variant="ghost"
-                      onClick={() => setShowPassword(!showPassword)}
-                    >
-                      {!showPassword ? <EyeIcon /> : <EyeOffIcon />}
-                    </Button>
-                  </InputGroupAddon>
-                </InputGroup>
-              </Field>
-            </FieldGroup>
-          </form>
-        </DialogPanel>
-        <DialogFooter variant="bare">
-          <Button
-            variant={"secondary"}
-            disabled={formState.isSubmitting || !formState.isDirty}
-            onClick={handleSubmit(onSubmit)}
-          >
-            {formState.isSubmitting && <Spinner />}
-            {t("Submit")}
-          </Button>
-
-          {formState.isSubmitted && authData ? (
-            <VerifyAuthenticator authData={authData} />
-          ) : null}
-        </DialogFooter>
-      </DialogPopup>
-    </Dialog>
+            <Button
+              type="submit"
+              variant={"secondary"}
+              disabled={formState.isSubmitting || !formState.isDirty}
+              className="max-w-fit"
+            >
+              {formState.isSubmitting && <Spinner />}
+              {t("Submit")}
+            </Button>
+          </FieldGroup>
+        </form>
+      </DialogPanel>
+    </DialogPopup>
   );
 }
-
-export default SetupTwoFactor;

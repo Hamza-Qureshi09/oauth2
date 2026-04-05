@@ -16,6 +16,7 @@ import useSWR from "swr";
 import SetupTwoFactor from "./SetupTwoFactor";
 import { useLoading } from "@/contexts/Loading";
 import { Badge } from "@/components/ui/badge";
+import DisableTwoFactor from "./DisableTwoFactor";
 
 function Security() {
   const { t } = useTranslation();
@@ -47,14 +48,20 @@ function Security() {
             {t("Two factor isn't enabled")}
           </p>
         ),
-        right: () =>
-          userSession?.user.twoFactorEnabled ? (
-            <Button size="sm" variant="destructive" onClick={() => {}}>
-              {t("Disable")}
-            </Button>
-          ) : (
-            <SetupTwoFactor />
-          ),
+        right: () => {
+          const twoFactorEnabled = userSession?.user.twoFactorEnabled;
+          return (
+            <div className="flex items-center justify-end">
+              <div className={twoFactorEnabled ? "block" : "hidden"}>
+                <DisableTwoFactor />
+              </div>
+
+              <div className={twoFactorEnabled ? "hidden" : "block"}>
+                <SetupTwoFactor />
+              </div>
+            </div>
+          );
+        },
       },
       {
         icon: KeyIcon,
@@ -142,7 +149,6 @@ function Security() {
           {t("Add an extra layer of security on your account")}
         </p>
       </div>
-
       {/* list */}
       <div className="flex flex-col gap-1 grow w-full">
         {SecurityMethods.map((item, index) => (

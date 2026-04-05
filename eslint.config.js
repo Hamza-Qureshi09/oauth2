@@ -29,6 +29,7 @@ export default defineConfig([
     rules: {
       "prettier/prettier": "error",
       "react/no-unescaped-entities": "off",
+      "react-hooks/refs": "off",
       "react-hooks/incompatible-library": "off",
       "react/react-in-jsx-scope": "off",
       "react/no-unknown-property": "off",

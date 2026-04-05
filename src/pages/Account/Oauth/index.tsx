@@ -24,7 +24,6 @@ function OAuth() {
     data,
     isLoading: loadingClients,
     isValidating,
-    error,
     mutate,
   } = useSWR(
     "oauth2Clients",
@@ -35,8 +34,6 @@ function OAuth() {
   );
 
   const authClients = data?.results ?? [];
-
-  console.log(error, loadingClients);
 
   return (
     <div className="flex flex-col gap-5 items-start w-full h-full">
