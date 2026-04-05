@@ -30,6 +30,7 @@ function OAuth() {
     async () =>
       await ThunderSDK.oauthClients.get({
         params: {},
+        query: {}
       }),
   );
 
