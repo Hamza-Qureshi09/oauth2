@@ -27,7 +27,7 @@ import {
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { authClient } from "@/lib/auth";
 import { toast } from "sonner";
-import VerifyAuthenticator from "./VerifyAuthenticator";
+import ScanAndVerifyAuth from "./ScanAndVerifyAuth";
 import type { DialogRootActions } from "@base-ui/react";
 import SaveRecoveryCodes from "./SaveRecoverCodes";
 
@@ -42,7 +42,6 @@ export type TAuthData = { totpURI: string; backupCodes: string[] };
 
 function SetupTwoFactor() {
   const { t } = useTranslation();
-  const [open, setOpen] = React.useState(false);
   const [authData, setAuthData] = React.useState<TAuthData>();
   const [step, setStep] = React.useState(0);
 
@@ -54,13 +53,13 @@ function SetupTwoFactor() {
     <>
       <Dialog
         actionsRef={actionsRef}
-        open={open}
         onOpenChange={(isOpen) => {
           if (!isOpen) {
             setStep(0);
             setAuthData(undefined);
+
+            actionsRef.current?.unmount();
           }
-          setOpen(isOpen);
         }}
       >
         <DialogTrigger
@@ -74,7 +73,7 @@ function SetupTwoFactor() {
         {step === 0 ? (
           <VerifyIdentity onSuccess={setAuthData} />
         ) : step === 1 ? (
-          <VerifyAuthenticator
+          <ScanAndVerifyAuth
             authData={authData}
             onVerifyComplete={() => setStep(2)}
           />

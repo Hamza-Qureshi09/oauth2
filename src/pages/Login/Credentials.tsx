@@ -29,7 +29,7 @@ const DefaultForm = {
   rememberMe: false,
 };
 
-function CredentialsForm() {
+function CredentialsForm({ onShowTwoStep }: { onShowTwoStep: () => void }) {
   const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
@@ -50,14 +50,13 @@ function CredentialsForm() {
         async onSuccess(context) {
           if (context.data.twoFactorRedirect) {
             // Handle the 2FA verification in place
-          }
+            onShowTwoStep();
+          } else navigate("/" + window.location.search);
         },
       },
     );
 
     if (Response.error) toast.error(Response.error.message);
-
-    navigate("/" + window.location.search);
   };
 
   return (
@@ -96,7 +95,7 @@ function CredentialsForm() {
         <Field>
           <div className="flex items-center justify-between">
             <FieldLabel htmlFor="password">{t("Password")}</FieldLabel>
-            <Link to="reset-password">{t("Forgot your password?")}</Link>
+            <Link to="/reset-password">{t("Forgot your password?")}</Link>
           </div>
           <InputGroup>
             <InputGroupInput

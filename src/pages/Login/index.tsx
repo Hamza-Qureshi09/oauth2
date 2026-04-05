@@ -26,6 +26,7 @@ import CredentialsForm from "./Credentials";
 import MagicLinkForm from "./MagicLink";
 import { toast } from "sonner";
 import { useAppBranding } from "@/hooks/useAppBranding";
+import VerifyTwoFactor from "../Account/Security/VerifyTwoFactor";
 
 type ProviderKey = keyof typeof authProviders;
 
@@ -37,6 +38,7 @@ function Login() {
   const { capabilities } = useCapabilities();
 
   const [showMagicLink, setShowMagicLink] = React.useState(false);
+  const [showTwoStep, setShowTwoStep] = React.useState(false);
 
   const magicLink = React.useMemo(
     () => capabilities?.includes("magicLink"),
@@ -64,102 +66,125 @@ function Login() {
 
   return (
     <FormWrapper title={t("Login")}>
-      <div className={cn("flex flex-col gap-5")}>
-        <Card className="relative">
-          <FormCrash error={error} />
+      {showTwoStep ? (
+        <div className={cn("flex flex-col gap-5")}>
+          <Card className="relative">
+            <CardHeader className="text-center">
+              <CardTitle className="text-xl">{t("Verify yourself")}</CardTitle>
+            </CardHeader>
 
-          <CardHeader className="text-center">
-            <CardTitle className="text-xl">{t("Welcome back")}</CardTitle>
-            <CardDescription>
-              {t("Login securely with your desired option")}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <FieldGroup className="pb-2">
-              <Field>
-                <div className="flex gap-3 flex-wrap">
-                  {enabledProviders.map(([key, { icon, label, invert }]) => (
+            <CardContent>
+              <VerifyTwoFactor
+                onVerifyComplete={() => navigate("/" + window.location.search)}
+              />
+            </CardContent>
+          </Card>
+        </div>
+      ) : (
+        <div className={cn("flex flex-col gap-5")}>
+          <Card className="relative">
+            <FormCrash error={error} />
+
+            <CardHeader className="text-center">
+              <CardTitle className="text-xl">{t("Welcome back")}</CardTitle>
+              <CardDescription>
+                {t("Login securely with your desired option")}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <FieldGroup className="pb-2">
+                <Field>
+                  <div className="flex gap-3 flex-wrap">
+                    {enabledProviders.map(([key, { icon, label, invert }]) => (
+                      <Button
+                        variant="outline"
+                        type="button"
+                        key={key}
+                        className={"grow"}
+                        onClick={async () => {
+                          const Response = await authClient.signIn.social({
+                            provider: key,
+                          });
+
+                          if (!Response.error)
+                            navigate("/" + window.location.search);
+                        }}
+                      >
+                        <img
+                          src={icon}
+                          className={cn(invert && "dark:invert")}
+                          alt={label}
+                        />
+                        {t("Sign in with {{provider}}", { provider: label })}
+                      </Button>
+                    ))}
+                  </div>
+                </Field>
+
+                {enabledProviders.length > 0 && (
+                  <FieldSeparator>{t("Or continue with")}</FieldSeparator>
+                )}
+
+                <Field>
+                  {showMagicLink ? (
+                    <MagicLinkForm />
+                  ) : (
+                    <CredentialsForm
+                      onShowTwoStep={() => setShowTwoStep(true)}
+                    />
+                  )}
+
+                  {magicLink && (
                     <Button
-                      variant="outline"
                       type="button"
-                      key={key}
-                      className={"grow"}
-                      onClick={async () => {
-                        const Response = await authClient.signIn.social({
-                          provider: key,
-                        });
-
-                        if (!Response.error)
-                          navigate("/" + window.location.search);
-                      }}
+                      variant={"outline"}
+                      onClick={() => setShowMagicLink(!showMagicLink)}
                     >
-                      <img
-                        src={icon}
-                        className={cn(invert && "dark:invert")}
-                        alt={label}
-                      />
-                      {t("Sign in with {{provider}}", { provider: label })}
+                      {t(
+                        showMagicLink
+                          ? "Sign-in with Credentials"
+                          : "Sign-in with Magic Link",
+                      )}
                     </Button>
-                  ))}
-                </div>
-              </Field>
-
-              {enabledProviders.length > 0 && (
-                <FieldSeparator>{t("Or continue with")}</FieldSeparator>
-              )}
-
+                  )}
+                </Field>
+              </FieldGroup>
               <Field>
-                {showMagicLink ? <MagicLinkForm /> : <CredentialsForm />}
-
-                {magicLink && (
+                {passkey && (
                   <Button
-                    type="button"
-                    variant={"outline"}
-                    onClick={() => setShowMagicLink(!showMagicLink)}
+                    variant={"secondary"}
+                    onClick={async () => {
+                      const { error } = await authClient.signIn.passkey();
+
+                      if (error) {
+                        toast.error(error.message);
+                        return;
+                      }
+
+                      navigate("/" + window.location.search);
+                    }}
                   >
-                    {t(
-                      showMagicLink
-                        ? "Sign-in with Credentials"
-                        : "Sign-in with Magic Link",
-                    )}
+                    <KeyIcon />
+                    {t("Sign-in with Passkey")}
                   </Button>
                 )}
+                <FieldDescription className="text-center">
+                  <Trans i18nKey={"noAccount"}>
+                    Don't have an account? <Link to="/signup">Sign up</Link>
+                  </Trans>
+                </FieldDescription>
               </Field>
-            </FieldGroup>
-            <Field>
-              {passkey && (
-                <Button
-                  variant={"secondary"}
-                  onClick={async () => {
-                    const { error } = await authClient.signIn.passkey();
-
-                    if (error) {
-                      toast.error(error.message);
-                      return;
-                    }
-
-                    navigate("/" + window.location.search);
-                  }}
-                >
-                  <KeyIcon />
-                  {t("Sign-in with Passkey")}
-                </Button>
-              )}
-              <FieldDescription className="text-center">
-                <Trans i18nKey={"noAccount"}>
-                  Don't have an account? <Link to="/signup">Sign up</Link>
-                </Trans>
-              </FieldDescription>
-            </Field>
-          </CardContent>
-        </Card>
-        <FieldDescription className="px-6 text-center">
-          <Trans i18nKey={"agreement"}>
-            By clicking continue, you agree to our{" "}
-            <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
-          </Trans>
-        </FieldDescription>
-      </div>
+            </CardContent>
+          </Card>
+          <FieldDescription className="px-6 text-center">
+            <Trans i18nKey={"agreement"}>
+              By clicking continue, you agree to our{" "}
+              <a href="#">Terms of Service</a> and{" "}
+              <a href="#">Privacy Policy</a>.
+            </Trans>
+          </FieldDescription>
+        </div>
+      )}
     </FormWrapper>
   );
 }

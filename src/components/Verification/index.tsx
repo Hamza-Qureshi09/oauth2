@@ -27,7 +27,11 @@ import PasskeyVerification from "./Passkey";
 
 type TMethod = "passkey" | "sms" | "2-step" | "email" | "password";
 
-function Verification() {
+function Verification({
+  onSubmit,
+}: {
+  onSubmit: (data: { code: string | number | undefined }) => void;
+}) {
   const { t } = useTranslation();
   const [method, setMethod] = React.useState<TMethod>();
   const [step, setStep] = React.useState(0);
@@ -118,7 +122,7 @@ function Verification() {
             ) : method === "sms" ? (
               <SmsVerification />
             ) : method === "2-step" ? (
-              <TwoStepVerification />
+              <TwoStepVerification submit={onSubmit} />
             ) : method === "passkey" ? (
               <PasskeyVerification />
             ) : null}
