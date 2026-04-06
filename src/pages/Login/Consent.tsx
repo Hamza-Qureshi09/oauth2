@@ -26,16 +26,13 @@ function Consent() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  const { data, error, isLoading } = useSWR(
+  const { error, isLoading } = useSWR(
     "oauth2Client",
     async () =>
       await ThunderSDK.oauthClients.get({
         params: { id: searchParams.get("client_id") ?? "" },
-        query: {},
       }),
   );
-
-  console.log(data?.results);
 
   const scopes = React.useMemo(
     () => searchParams.get("scope")?.trim()?.split(/\s+/),
