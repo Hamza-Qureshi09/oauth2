@@ -11,9 +11,11 @@ import { useAppBranding } from "@/hooks/useAppBranding";
 import { Download } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { actionsRef } from "./SetupTwoFactor";
+import { authClient } from "@/lib/auth";
 
 function SaveRecoveryCodes(props: { backupCodes: string[] }) {
   const { app } = useAppBranding();
+  const { data } = authClient.useSession();
 
   const { backupCodes } = props;
   const { t } = useTranslation();
@@ -48,14 +50,38 @@ function SaveRecoveryCodes(props: { backupCodes: string[] }) {
             <Button
               variant={"secondary"}
               onClick={() => {
-                const blob = new Blob([backupCodes.join("\n")], {
+                const date = new Date();
+                const appName = app?.name ?? "Huruf Tech";
+                const content = `${appName} - BACKUP VERIFICATION CODES
+
+Points to note
+--------------
+# Each code can be used only once.
+# Do not share these codes with anyone.
+
+Generated codes
+---------------
+Username: ${data?.user.email ?? "Unknown"}
+Generated on: ${new Intl.DateTimeFormat("en-GB", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  second: "2-digit",
+                  hour12: false,
+                }).format(date)}
+
+${backupCodes.map((code, idx) => `${idx + 1}. ${code}`).join("\n")}`;
+
+                const blob = new Blob([content], {
                   type: "text/plain",
                 });
                 const url = URL.createObjectURL(blob);
 
                 const a = document.createElement("a");
                 a.href = url;
-                a.download = `${app?.name?.toLowerCase() ?? "hurutech"}-recovery-codes.txt`;
+                a.download = `${appName.replaceAll(" ", "-").toLowerCase()}-recovery-codes.txt`;
                 a.click();
 
                 URL.revokeObjectURL(url);

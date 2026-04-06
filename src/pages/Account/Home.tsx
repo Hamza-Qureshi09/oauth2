@@ -30,6 +30,7 @@ import OAuth from "./Oauth";
 import Security from "./Security";
 import { toast } from "sonner";
 import { useLocation, useNavigate } from "react-router";
+import { useLoading } from "@/contexts/Loading";
 
 const tabs = [
   { id: "home", icon: HomeIcon, label: "Home" },
@@ -49,12 +50,12 @@ function Home() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const { setLoading } = useLoading();
+
   const { data } = authClient.useSession();
 
   const fullName = data?.user?.name || "Unamed";
   const verified = data?.user?.emailVerified;
-
-  //   console.log(location);
 
   return (
     <div className="w-full h-full bg-muted-foreground/5 dark:bg-muted/30">
@@ -87,7 +88,10 @@ function Home() {
 
               <Button
                 onClick={async () => {
-                  const { error } = await authClient.signOut();
+                  setLoading(true);
+                  const { error } = await authClient
+                    .signOut()
+                    .finally(() => setLoading(false));
 
                   if (error) {
                     toast.error(error.message);

@@ -1,4 +1,4 @@
-import { KeyIcon } from "lucide-react";
+import { ClipboardPasteIcon, KeyIcon } from "lucide-react";
 import React from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router";
@@ -15,6 +15,7 @@ import {
 import {
   Field,
   FieldDescription,
+  FieldError,
   FieldGroup,
   FieldSeparator,
 } from "@/components/ui/field";
@@ -27,6 +28,8 @@ import MagicLinkForm from "./MagicLink";
 import { toast } from "sonner";
 import { useAppBranding } from "@/hooks/useAppBranding";
 import VerifyTwoFactor from "../Account/Security/VerifyTwoFactor";
+import { Controller, useForm, type SubmitHandler } from "react-hook-form";
+import { Input } from "@/components/ui/input";
 
 type ProviderKey = keyof typeof authProviders;
 
@@ -67,19 +70,7 @@ function Login() {
   return (
     <FormWrapper title={t("Login")}>
       {showTwoStep ? (
-        <div className={cn("flex flex-col gap-5")}>
-          <Card className="relative">
-            <CardHeader className="text-center">
-              <CardTitle className="text-xl">{t("Verify yourself")}</CardTitle>
-            </CardHeader>
-
-            <CardContent>
-              <VerifyTwoFactor
-                onVerifyComplete={() => navigate("/" + window.location.search)}
-              />
-            </CardContent>
-          </Card>
-        </div>
+        <TwoFactorForm />
       ) : (
         <div className={cn("flex flex-col gap-5")}>
           <Card className="relative">
@@ -190,3 +181,119 @@ function Login() {
 }
 
 export default Login;
+
+const DefaultForm = {
+  code: "",
+  trustDevice: false,
+};
+
+function TwoFactorForm() {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+
+  const [useBackup, setUseBackup] = React.useState(false);
+
+  const { control, handleSubmit } = useForm<typeof DefaultForm>({
+    defaultValues: DefaultForm,
+  });
+
+  const onSubmit: SubmitHandler<typeof DefaultForm> = async (formData) => {
+    const { error } = await authClient.twoFactor.verifyBackupCode({
+      ...formData,
+      disableSession: false,
+    });
+
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+
+    navigate("/" + window.location.search);
+  };
+
+  return (
+    <div className={cn("flex flex-col gap-5")}>
+      <Card className="relative">
+        <CardHeader className="text-center">
+          <CardTitle className="text-xl">{t("Verify yourself")}</CardTitle>
+        </CardHeader>
+
+        <CardContent>
+          {useBackup ? (
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <FieldGroup>
+                <Field>
+                  <p className="text-sm">
+                    {t(
+                      "Use your emergency backup code that you store somewhere when setting up the two step authentication",
+                    )}
+                  </p>
+                </Field>
+
+                <Controller
+                  control={control}
+                  name="code"
+                  rules={{ required: t("Backup code is required!") }}
+                  render={({ field, fieldState }) => (
+                    <>
+                      {field.value ? (
+                        <Field>
+                          <Input
+                            placeholder={t("Enter your backup code")}
+                            value={field.value}
+                            onChange={(e) => field.onChange(e.target.value)}
+                          />
+
+                          <FieldError>{fieldState.error?.message}</FieldError>
+                        </Field>
+                      ) : null}
+                      <Field orientation={"horizontal"} className="max-w-fit">
+                        <Button
+                          onClick={async () => {
+                            try {
+                              const text = await navigator.clipboard.readText();
+                              field.onChange(text);
+                            } catch (err) {
+                              console.error("Clipboard read failed:", err);
+                            }
+                          }}
+                        >
+                          <ClipboardPasteIcon /> {t("Paste")}
+                        </Button>
+                      </Field>
+                    </>
+                  )}
+                />
+
+                <Field orientation={"horizontal"} className="justify-end">
+                  <Button
+                    variant={"secondary"}
+                    onClick={() => setUseBackup(false)}
+                  >
+                    {t("Use 2-step code?")}
+                  </Button>
+                  <Button type="submit">{t("Restore account")}</Button>
+                </Field>
+              </FieldGroup>
+            </form>
+          ) : (
+            <VerifyTwoFactor
+              onVerifyComplete={() => navigate("/" + window.location.search)}
+              footerContent={() => (
+                <Button variant="secondary" onClick={() => setUseBackup(true)}>
+                  {t("Use backup to restore?")}
+                </Button>
+              )}
+            />
+          )}
+        </CardContent>
+      </Card>
+
+      <FieldDescription className="text-center">
+        <Trans i18nKey={"otherWayLogin"}>
+          Use an other way to login? <Link to="/">Login</Link>
+        </Trans>
+      </FieldDescription>
+    </div>
+  );
+}
