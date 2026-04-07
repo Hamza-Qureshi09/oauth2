@@ -24,6 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Gender } from "@/lib/globals";
+import { DateTimeInput } from "@/components/DateTimeInput";
 
 type TUpdateForm = {
   name: string;
@@ -60,8 +61,7 @@ function UpdateProfile() {
             {t("Edit")}
           </Button>
         )}
-      >
-      </DialogTrigger>
+      ></DialogTrigger>
       <DialogPopup>
         <DialogHeader>
           <DialogTitle>{t("Edit Profile")}</DialogTitle>
@@ -95,7 +95,10 @@ function UpdateProfile() {
                         onValueChange={field.onChange}
                       >
                         <SelectTrigger className="w-full">
-                          <SelectValue placeholder={t("Select gender")} />
+                          <SelectValue
+                            placeholder={t("Select gender")}
+                            className="capitalize"
+                          />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectGroup>
@@ -115,18 +118,30 @@ function UpdateProfile() {
                   />
                 </Field>
                 <Field>
-                  <FieldLabel htmlFor="dob">{t("Date of Birth")}</FieldLabel>
+                  <FieldLabel htmlFor="date-picker">
+                    {t("Date of Birth")}
+                  </FieldLabel>
+
+                  <DateTimeInput
+                    id="date-picker"
+                    type="date"
+                    defaultValue="1990-06-12"
+                    {...register("dob")}
+                  />
                 </Field>
               </Field>
 
-              <Button
-                type="submit"
-                variant={"secondary"}
-                disabled={formState.isSubmitting || !formState.isDirty}
-              >
-                {formState.isSubmitting && <Spinner />}
-                {t("Update")}
-              </Button>
+              <Field className="items-end">
+                <Button
+                  type="submit"
+                  variant={"secondary"}
+                  className="max-w-fit"
+                  disabled={formState.isSubmitting || !formState.isDirty}
+                >
+                  {formState.isSubmitting && <Spinner />}
+                  {t("Update")}
+                </Button>
+              </Field>
             </FieldGroup>
           </form>
         </DialogPanel>
