@@ -1,5 +1,6 @@
 import {
   ArrowUpFromLine,
+  Calendar,
   CheckCircle2,
   Contact2,
   HomeIcon,
@@ -7,6 +8,7 @@ import {
   Mail,
   Shield,
   ShieldCheck,
+  UserRound,
   Users2,
   XCircle,
 } from "lucide-react";
@@ -21,7 +23,7 @@ import {
 } from "@/components/Tabs";
 import { authClient } from "@/lib/auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { getInitials, sha256 } from "@/lib/utils";
+import { formatDate, getInitials, sha256 } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import Item from "@/components/Item";
 import { Badge } from "@/components/ui/badge";
@@ -172,6 +174,16 @@ function Home() {
                     icon: Contact2,
                     label: "Name",
                     content: fullName,
+                  },
+                  {
+                    icon: UserRound,
+                    label: "Gender",
+                    content: data?.user.gender ?? "N/A",
+                  },
+                  {
+                    icon: Calendar,
+                    label: "Date of Birth",
+                    content: formatDate(data?.user.dob, "PP"),
                   },
                   {
                     icon: Mail,

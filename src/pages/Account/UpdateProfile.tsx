@@ -25,43 +25,63 @@ import {
 } from "@/components/ui/select";
 import { Gender } from "@/lib/globals";
 import { DateTimeInput } from "@/components/DateTimeInput";
+import { useLoading } from "@/contexts/Loading";
+import type { DialogRootActions } from "@base-ui/react";
+import React from "react";
 
 type TUpdateForm = {
   name: string;
   gender: string | null | undefined;
-  dob: Date | null | undefined;
+  dob: Date | string | null | undefined;
 };
 
 function UpdateProfile() {
   const { t } = useTranslation();
+  const { setLoading } = useLoading();
+  const actionsRef = React.useRef<DialogRootActions>(null);
 
   const { data } = authClient.useSession();
 
+  const user = data?.user;
+
   const { control, handleSubmit, formState, register } = useForm<TUpdateForm>({
-    defaultValues: data?.user,
+    defaultValues: {
+      name: user?.name,
+      gender: user?.gender ?? "",
+      dob: "1990-06-12",
+    },
   });
 
   const onSubmit: SubmitHandler<TUpdateForm> = async (formData) => {
-    console.info(formData);
-    const { error } = await authClient.updateUser({ ...formData });
+    setLoading(true);
+
+    const payload = {
+      ...formData,
+      dob: new Date(formData.dob!),
+    };
+
+    const { error } = await authClient.updateUser(payload).finally(() =>
+      setLoading(false)
+    );
 
     if (error) {
       toast.error(error.message);
       return;
     }
+
+    actionsRef.current?.close();
   };
 
-  console.info(formState.errors, formState.isDirty, "formState");
-
   return (
-    <Dialog>
+    <Dialog actionsRef={actionsRef}>
       <DialogTrigger
         render={(props) => (
           <Button variant={"secondary"} {...props}>
             {t("Edit")}
           </Button>
         )}
-      ></DialogTrigger>
+      >
+      </DialogTrigger>
       <DialogPopup>
         <DialogHeader>
           <DialogTitle>{t("Edit Profile")}</DialogTitle>
@@ -91,7 +111,7 @@ function UpdateProfile() {
                     render={({ field }) => (
                       <Select
                         id="gender"
-                        value={field.value}
+                        value={field.value ?? ""}
                         onValueChange={field.onChange}
                       >
                         <SelectTrigger className="w-full">
@@ -125,7 +145,6 @@ function UpdateProfile() {
                   <DateTimeInput
                     id="date-picker"
                     type="date"
-                    defaultValue="1990-06-12"
                     {...register("dob")}
                   />
                 </Field>

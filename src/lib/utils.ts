@@ -1,4 +1,5 @@
 import { type ClassValue, clsx } from "clsx";
+import { format, formatDistanceToNow } from "date-fns";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
@@ -83,3 +84,19 @@ export const getStrengthText = (score: number) => {
   if (score === 3) return "Medium password";
   return "Strong password";
 };
+
+export function formatDate(
+  date?: Date | string | null,
+  pattern: "timeAgo" | "default" | string = "default",
+): string {
+  if (date) {
+    const validDate = typeof date === "string" ? new Date(date) : date;
+    if (pattern !== "timeAgo") {
+      return format(
+        validDate,
+        pattern === "default" ? "PP hh:mm a" : pattern,
+      );
+    }
+    return formatDistanceToNow(validDate, { addSuffix: true });
+  } else return "N/A";
+}
