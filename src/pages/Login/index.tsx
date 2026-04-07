@@ -30,12 +30,14 @@ import { useAppBranding } from "@/hooks/useAppBranding";
 import VerifyTwoFactor from "../Account/Security/2FA/VerifyTwoFactor";
 import { Controller, useForm, type SubmitHandler } from "react-hook-form";
 import { Input } from "@/components/ui/input";
+import { useLoading } from "@/contexts/Loading";
 
 type ProviderKey = keyof typeof authProviders;
 
 function Login() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { setLoading } = useLoading();
   const { error } = useAppBranding();
 
   const { capabilities } = useCapabilities();
@@ -93,13 +95,20 @@ function Login() {
                         key={key}
                         className={"grow"}
                         onClick={async () => {
-                          const Response = await authClient.signIn.social({
-                            provider: key,
-                            callbackURL: window.location.origin,
-                          });
+                          setLoading(true);
+                          const { error } = await authClient.signIn
+                            .social({
+                              provider: key,
+                              callbackURL: window.location.origin,
+                            })
+                            .finally(() => setLoading(false));
 
-                          if (!Response.error)
-                            navigate("/" + window.location.search);
+                          if (error) {
+                            toast.error(error.message);
+                            return;
+                          }
+
+                          navigate("/" + window.location.search);
                         }}
                       >
                         <img
