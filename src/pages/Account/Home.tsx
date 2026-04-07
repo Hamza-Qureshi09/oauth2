@@ -58,31 +58,32 @@ function Home() {
 
   const fullName = data?.user?.name || "Unamed";
   const verified = data?.user?.emailVerified;
+  const email = data?.user.email ?? "unknown";
 
-  const gravatarCore = React.useMemo(() => {
-    const email = data?.user.email ?? "unknown";
+  const gravatarCore = React.useMemo(
+    () =>
+      new GravatarQuickEditorCore({
+        email,
+        scope: ["avatars"],
+        onProfileUpdated: async (type) => {
+          if (type === "avatar_updated") {
+            const { error } = await authClient.updateUser({
+              image: `https://www.gravatar.com/avatar/${await sha256(
+                email,
+              )}?s=200&d=identicon`,
+            });
 
-    return new GravatarQuickEditorCore({
-      email,
-      scope: ["avatars"],
-      onProfileUpdated: async (type) => {
-        if (type === "avatar_updated") {
-          const { error } = await authClient.updateUser({
-            image: `https://www.gravatar.com/avatar/${await sha256(
-              email,
-            )}?s=200&d=identicon`,
-          });
+            if (error) {
+              toast.error(error.message);
+              return;
+            }
 
-          if (error) {
-            toast.error(error.message);
-            return;
+            refetch();
           }
-
-          refetch();
-        }
-      },
-    });
-  }, [data?.user.email, refetch]);
+        },
+      }),
+    [email, refetch],
+  );
 
   return (
     <div className="w-full h-full bg-muted-foreground/5 dark:bg-muted/30">
@@ -197,6 +198,22 @@ function Home() {
                         {t(verified ? "Verified" : "Unverified")}
                       </Badge>
                     ),
+                    right: () =>
+                      !verified && (
+                        <Button
+                          onClick={async () => {
+                            setLoading(true);
+                            await authClient
+                              .sendVerificationEmail({
+                                email,
+                                callbackURL: window.location.origin,
+                              })
+                              .finally(() => setLoading(false));
+                          }}
+                        >
+                          {t("Verify")}
+                        </Button>
+                      ),
                   },
                 ].map((item, index) => (
                   <Item key={index}>
@@ -208,15 +225,13 @@ function Home() {
                           <p className="text-sm text-muted-foreground">
                             {item.content}
                           </p>
-                        ) : item?.orientation === "vertical" ? (
-                          item.content
-                        ) : null}
+                        ) : (
+                          item?.content
+                        )}
                       </div>
                     </div>
 
-                    {typeof item.content !== "string" &&
-                      item?.orientation !== "vertical" &&
-                      item.content}
+                    {item.right?.()}
                   </Item>
                 ))}
               </div>
