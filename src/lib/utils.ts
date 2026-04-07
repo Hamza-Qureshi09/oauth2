@@ -100,3 +100,28 @@ export function formatDate(
     return formatDistanceToNow(validDate, { addSuffix: true });
   } else return "N/A";
 }
+
+export function parseUserAgent(ua: string) {
+  const userAgent = ua;
+  const browsers = ["chrome", "firefox", "safari", "edge", "unknown"] as const;
+  let currentBrowser: typeof browsers[number] = "unknown";
+  let os: "windows" | "macOS" | "linux" | "android" | "ios" | "unknown" =
+    "unknown";
+
+  for (let browser of browsers) {
+    if (userAgent.toLowerCase().includes(browser)) currentBrowser = browser;
+  }
+
+  if (userAgent.includes("Win")) os = "windows";
+  else if (userAgent.includes("Mac")) os = "macOS";
+  else if (userAgent.includes("Linux")) os = "linux";
+  else if (/Android/i.test(userAgent)) os = "android";
+  else if (/iPhone|iPad/i.test(userAgent)) os = "ios";
+
+  return {
+    browser: currentBrowser,
+    os,
+    isMobile: /Mobi|Android/i.test(userAgent),
+    raw: userAgent,
+  };
+}

@@ -17,6 +17,7 @@ import SetupTwoFactor from "./2FA/SetupTwoFactor";
 import { useLoading } from "@/contexts/Loading";
 import { Badge } from "@/components/ui/badge";
 import DisableTwoFactor from "./2FA/DisableTwoFactor";
+import { DeviceSessions } from "./DeviceSessions";
 
 function Security() {
   const { t } = useTranslation();
@@ -25,8 +26,9 @@ function Security() {
   const { data: userSession } = authClient.useSession();
   const { app } = useAppBranding();
 
-  const { data, isLoading, mutate } = useSWR("oauthPasskeyList", () =>
-    authClient.passkey.listUserPasskeys(),
+  const { data, isLoading, mutate } = useSWR(
+    "oauthPasskeyList",
+    () => authClient.passkey.listUserPasskeys(),
   );
 
   const passkeyCount = data?.data?.length ?? 0;
@@ -38,16 +40,18 @@ function Security() {
         label: "2-step verification",
         value: "2step",
         orientation: "vertical",
-        content: userSession?.user.twoFactorEnabled ? (
-          <Badge variant={"success"} className="max-w-fit">
-            <CheckCircle2 className="fill-success stroke-background" />
-            {t("Two factor Enabled")}
-          </Badge>
-        ) : (
-          <p className="text-sm text-muted-foreground">
-            {t("Two factor isn't enabled")}
-          </p>
-        ),
+        content: userSession?.user.twoFactorEnabled
+          ? (
+            <Badge variant={"success"} className="max-w-fit">
+              <CheckCircle2 className="fill-success stroke-background" />
+              {t("Two factor Enabled")}
+            </Badge>
+          )
+          : (
+            <p className="text-sm text-muted-foreground">
+              {t("Two factor isn't enabled")}
+            </p>
+          ),
         right: () => {
           const twoFactorEnabled = userSession?.user.twoFactorEnabled;
           return (
@@ -67,9 +71,7 @@ function Security() {
         icon: KeyIcon,
         label: "Passkeys & security keys",
         value: "passkey",
-        content: isLoading ? (
-          <Skeleton className="w-30 h-5" />
-        ) : (
+        content: isLoading ? <Skeleton className="w-30 h-5" /> : (
           t(passkeyCount > 0 ? "{{count}} passkeys" : "No passkey setup", {
             count: passkeyCount,
           })
@@ -81,15 +83,15 @@ function Security() {
               onClick={async () => {
                 try {
                   const passkeyName = app?.name ?? "no name";
-                  const { data: passkeyData, error } =
-                    await authClient.passkey.addPasskey({
+                  const { data: passkeyData, error } = await authClient.passkey
+                    .addPasskey({
                       name: passkeyName,
                       authenticatorAttachment: "cross-platform",
                     });
 
                   if (!error) {
-                    const { error } =
-                      await authClient.passkey.verifyRegistration({
+                    const { error } = await authClient.passkey
+                      .verifyRegistration({
                         name: passkeyName,
                         response: passkeyData,
                       });
@@ -120,8 +122,7 @@ function Security() {
             setLoading(true);
             const { data, error } = await authClient.requestPasswordReset({
               email: userSession.user.email,
-              redirectTo:
-                window.location.origin +
+              redirectTo: window.location.origin +
                 "/change-password" +
                 window.location.search,
             });
@@ -137,6 +138,13 @@ function Security() {
           }
         },
       },
+      // {
+      //   icon: MonitorSmartphone,
+      //   label: "Device Sessions",
+      //   value: "deviceSessions",
+      //   content: "3 sessions",
+      //   onClick: async () => {},
+      // },
     ],
     [t, isLoading, app, mutate, passkeyCount, userSession, setLoading],
   );
@@ -150,7 +158,7 @@ function Security() {
         </p>
       </div>
       {/* list */}
-      <div className="flex flex-col gap-1 grow w-full">
+      <div className="flex flex-col gap-1 w-full">
         {SecurityMethods.map((item, index) => (
           <Item
             key={index}
@@ -161,13 +169,15 @@ function Security() {
               <item.icon />
               <div className="flex flex-col">
                 <h3 className="font-medium">{t(item.label)}</h3>
-                {typeof item.content === "string" ? (
-                  <p className="text-sm text-muted-foreground">
-                    {item.content}
-                  </p>
-                ) : (
-                  item.content
-                )}
+                {typeof item.content === "string"
+                  ? (
+                    <p className="text-sm text-muted-foreground">
+                      {item.content}
+                    </p>
+                  )
+                  : (
+                    item.content
+                  )}
               </div>
             </div>
 
@@ -175,6 +185,9 @@ function Security() {
           </Item>
         ))}
       </div>
+
+      {/* multi sessions */}
+      <DeviceSessions />
     </div>
   );
 }
