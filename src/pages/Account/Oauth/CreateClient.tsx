@@ -35,9 +35,9 @@ import { ThunderSDK } from "thunder-sdk";
 import SaveClientSecret from "./SaveClientSecret";
 import React from "react";
 
-const abc = ThunderSDK.oauthClients.create;
-
-const DefaultForm: Parameters<typeof abc>[number]["body"] = {
+const DefaultForm: Parameters<
+  typeof ThunderSDK.oauthClients.create
+>[number]["body"] = {
   type: "public",
   name: "",
   secret: "",
@@ -74,9 +74,8 @@ function CreateClient({
       return "Select scopes";
     }
     const firstScope = value[0] ? scopes[value[0]] : "";
-    const additionalScopes = value.length > 1
-      ? ` (+${value.length - 1} more)`
-      : "";
+    const additionalScopes =
+      value.length > 1 ? ` (+${value.length - 1} more)` : "";
     return firstScope + additionalScopes;
   }
 
@@ -113,14 +112,15 @@ function CreateClient({
   return (
     <Dialog>
       <DialogTrigger
-        render={render ??
+        render={
+          render ??
           ((props) => (
             <Button variant={"secondary"} {...props}>
               {t("Create client")}
             </Button>
-          ))}
-      >
-      </DialogTrigger>
+          ))
+        }
+      ></DialogTrigger>
       <DialogPopup>
         <DialogHeader>
           <DialogTitle>{t("OAuth Client")}</DialogTitle>
@@ -292,9 +292,7 @@ function CreateClient({
                                   className="cursor-pointer"
                                   onClick={() => {
                                     field.onChange(
-                                      fieldValue.filter((_, i) =>
-                                        i !== index
-                                      ),
+                                      fieldValue.filter((_, i) => i !== index),
                                     );
                                   }}
                                 >
@@ -322,9 +320,9 @@ function CreateClient({
             {t(data ? "Update" : "Submit")}
           </Button>
 
-          {formState.isSubmitted && clientSecret
-            ? <SaveClientSecret secret={clientSecret} onDone={reset} />
-            : null}
+          {formState.isSubmitted && clientSecret ? (
+            <SaveClientSecret secret={clientSecret} onDone={reset} />
+          ) : null}
         </DialogFooter>
       </DialogPopup>
     </Dialog>
