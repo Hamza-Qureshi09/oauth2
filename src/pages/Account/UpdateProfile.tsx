@@ -60,9 +60,9 @@ function UpdateProfile() {
       dob: new Date(formData.dob!),
     };
 
-    const { error } = await authClient.updateUser(payload).finally(() =>
-      setLoading(false)
-    );
+    const { error } = await authClient
+      .updateUser(payload)
+      .finally(() => setLoading(false));
 
     if (error) {
       toast.error(error.message);
@@ -80,8 +80,7 @@ function UpdateProfile() {
             {t("Edit")}
           </Button>
         )}
-      >
-      </DialogTrigger>
+      ></DialogTrigger>
       <DialogPopup>
         <DialogHeader>
           <DialogTitle>{t("Edit Profile")}</DialogTitle>

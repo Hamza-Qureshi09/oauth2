@@ -92,10 +92,7 @@ export function formatDate(
   if (date) {
     const validDate = typeof date === "string" ? new Date(date) : date;
     if (pattern !== "timeAgo") {
-      return format(
-        validDate,
-        pattern === "default" ? "PP hh:mm a" : pattern,
-      );
+      return format(validDate, pattern === "default" ? "PP hh:mm a" : pattern);
     }
     return formatDistanceToNow(validDate, { addSuffix: true });
   } else return "N/A";
@@ -118,7 +115,8 @@ export function parseUserAgent(ua: string) {
 
   const isMobile = /mobi|android/i.test(userAgent);
 
-  const isTablet = /ipad/i.test(userAgent) ||
+  const isTablet =
+    /ipad/i.test(userAgent) ||
     /tablet/i.test(userAgent) ||
     (/android/i.test(userAgent) && !/mobile/i.test(userAgent));
 

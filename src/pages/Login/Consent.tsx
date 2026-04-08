@@ -26,6 +26,8 @@ function Consent() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
+  const redirectUri = searchParams.get("redirect_uri");
+
   const { error, isLoading } = useSWR(
     "oauth2Client",
     async () =>
@@ -44,7 +46,7 @@ function Consent() {
     const Response = await ThunderSDK.oauth.consent({
       query: {
         client_id: searchParams.get("client_id") ?? "",
-        redirect_uri: searchParams.get("redirect_uri") ?? "",
+        redirect_uri: redirectUri ?? "",
         state: searchParams.get("state") ?? "",
         scope: searchParams.get("scope") ?? "",
         response_type: (searchParams.get("response_type") as "code") ?? "code",
@@ -123,7 +125,8 @@ function Consent() {
                 variant={"outline"}
                 className={"grow"}
                 onClick={() => {
-                  alert("consent denied");
+                  if (redirectUri)
+                    window.location.href = new URL(redirectUri).origin;
                 }}
               >
                 {t("Cancel")}
