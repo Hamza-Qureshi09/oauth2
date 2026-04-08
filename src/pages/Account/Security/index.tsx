@@ -17,6 +17,7 @@ import SetupTwoFactor from "./2FA/SetupTwoFactor";
 import { useLoading } from "@/contexts/Loading";
 import { Badge } from "@/components/ui/badge";
 import DisableTwoFactor from "./2FA/DisableTwoFactor";
+import { DeviceSessions } from "./DeviceSessions";
 
 function Security() {
   const { t } = useTranslation();
@@ -137,6 +138,13 @@ function Security() {
           }
         },
       },
+      // {
+      //   icon: MonitorSmartphone,
+      //   label: "Device Sessions",
+      //   value: "deviceSessions",
+      //   content: "3 sessions",
+      //   onClick: async () => {},
+      // },
     ],
     [t, isLoading, app, mutate, passkeyCount, userSession, setLoading],
   );
@@ -150,7 +158,7 @@ function Security() {
         </p>
       </div>
       {/* list */}
-      <div className="flex flex-col gap-1 grow w-full">
+      <div className="flex flex-col gap-1 w-full">
         {SecurityMethods.map((item, index) => (
           <Item
             key={index}
@@ -175,6 +183,9 @@ function Security() {
           </Item>
         ))}
       </div>
+
+      {/* multi sessions */}
+      <DeviceSessions />
     </div>
   );
 }

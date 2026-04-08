@@ -28,7 +28,7 @@ import MagicLinkForm from "./MagicLink";
 import { toast } from "sonner";
 import { useAppBranding } from "@/hooks/useAppBranding";
 import VerifyTwoFactor from "../Account/Security/2FA/VerifyTwoFactor";
-import { Controller, useForm, type SubmitHandler } from "react-hook-form";
+import { Controller, type SubmitHandler, useForm } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { useLoading } from "@/contexts/Loading";
 

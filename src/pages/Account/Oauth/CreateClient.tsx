@@ -99,8 +99,9 @@ function CreateClient({
         reset();
 
         document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
-      } else if (formData.type === "confidential" && formData.secret)
+      } else if (formData.type === "confidential" && formData.secret) {
         setClientSecret(formData.secret);
+      }
 
       onSuccess?.();
     } catch (error) {
