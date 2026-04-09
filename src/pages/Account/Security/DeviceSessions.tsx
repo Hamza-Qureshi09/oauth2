@@ -62,7 +62,8 @@ export function DeviceSessions() {
   React.useEffect(() => {
     (async () => {
       const res = await getDeviceInfo();
-      alert(JSON.stringify(res, null, 2));
+      console.log(res);
+      // alert(JSON.stringify(res, null, 2));
     })();
   }, []);
 
