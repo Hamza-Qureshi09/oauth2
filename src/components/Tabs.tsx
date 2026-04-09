@@ -66,7 +66,7 @@ function Tabs({
         isManualScrolling.current = false;
       }, 600);
     },
-    [onValueChange, scrollToActiveTab],
+    [scrollToActiveTab],
   );
 
   React.useEffect(() => {

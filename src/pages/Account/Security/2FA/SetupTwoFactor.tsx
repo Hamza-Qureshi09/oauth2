@@ -64,7 +64,7 @@ function SetupTwoFactor() {
       >
         <DialogTrigger
           render={(props) => (
-            <Button size="sm" {...props}>
+            <Button size="xs" {...props}>
               {t("Enable")}
             </Button>
           )}

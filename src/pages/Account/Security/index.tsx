@@ -78,7 +78,7 @@ function Security() {
         right: () => {
           return (
             <Button
-              size="sm"
+              size="xs"
               onClick={async () => {
                 try {
                   const passkeyName = app?.name ?? "no name";
@@ -183,7 +183,6 @@ function Security() {
           </Item>
         ))}
       </div>
-
       {/* multi sessions */}
       <DeviceSessions />
     </div>

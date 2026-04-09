@@ -100,41 +100,40 @@ export function formatDate(
 
 export function parseUserAgent(ua: string) {
   const userAgent = ua.toLowerCase();
-  let os: "windows" | "macOS" | "linux" | "android" | "ios" | "unknown" =
-    "unknown";
+  let os: "Windows" | "Mac OS" | "Linux" | "Android" | "iOS" | "Unknown" =
+    "Unknown";
   let browser:
-    | "chrome"
-    | "firefox"
-    | "safari"
-    | "edge"
-    | "brave"
-    | "arc"
-    | "opera"
-    | "samsung internet"
-    | "unknown" = "unknown";
+    | "Chrome"
+    | "Firefox"
+    | "Safari"
+    | "Edge"
+    | "Brave"
+    | "Arc"
+    | "Opera"
+    | "Samsung Internet"
+    | "Unknown" = "Unknown";
 
   const isMobile = /mobi|android/i.test(userAgent);
 
-  const isTablet =
-    /ipad/i.test(userAgent) ||
+  const isTablet = /ipad/i.test(userAgent) ||
     /tablet/i.test(userAgent) ||
     (/android/i.test(userAgent) && !/mobile/i.test(userAgent));
 
-  if (userAgent.includes("edg") || userAgent.includes("edge")) browser = "edge";
+  if (userAgent.includes("edg") || userAgent.includes("edge")) browser = "Edge";
   else if (userAgent.includes("opr") || userAgent.includes("opera")) {
-    browser = "opera";
-  } else if (userAgent.includes("samsungbrowser")) browser = "samsung internet";
-  else if (userAgent.includes("brave")) browser = "brave";
-  else if (userAgent.includes("arc")) browser = "arc";
-  else if (userAgent.includes("firefox")) browser = "firefox";
-  else if (userAgent.includes("chrome")) browser = "chrome";
-  else if (userAgent.includes("safari")) browser = "safari";
+    browser = "Opera";
+  } else if (userAgent.includes("samsungbrowser")) browser = "Samsung Internet";
+  else if (userAgent.includes("brave")) browser = "Brave";
+  else if (userAgent.includes("arc")) browser = "Arc";
+  else if (userAgent.includes("firefox")) browser = "Firefox";
+  else if (userAgent.includes("chrome")) browser = "Chrome";
+  else if (userAgent.includes("safari")) browser = "Safari";
 
-  if (userAgent.includes("windows")) os = "windows";
-  else if (userAgent.includes("mac")) os = "macOS";
-  else if (userAgent.includes("android")) os = "android";
-  else if (/iphone|ipad/i.test(userAgent)) os = "ios";
-  else if (userAgent.includes("linux")) os = "linux";
+  if (userAgent.includes("windows")) os = "Windows";
+  else if (userAgent.includes("mac")) os = "Mac OS";
+  else if (userAgent.includes("android")) os = "Android";
+  else if (/iphone|ipad/i.test(userAgent)) os = "iOS";
+  else if (userAgent.includes("linux")) os = "Linux";
 
   return {
     browser,
@@ -144,4 +143,16 @@ export function parseUserAgent(ua: string) {
     deviceType: isTablet ? "tablet" : isMobile ? "mobile" : "desktop",
     raw: ua,
   };
+}
+
+export async function getDeviceInfo() {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  if ((navigator as any).userAgentData) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return await (navigator as any).userAgentData.getHighEntropyValues([
+      "model", // e.g., "Pixel 7"
+      "platform", // e.g., "Android"
+      "platformVersion",
+    ]);
+  } else return undefined;
 }

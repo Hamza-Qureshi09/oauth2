@@ -3,9 +3,11 @@ import { Navigate, Outlet } from "react-router";
 import { authClient } from "@/lib/auth";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SkeletonRepeater } from "@/components/SkeletonRepeater";
+import { useUpdateSession } from "@/hooks/useUpdateSession";
 
 function Account() {
   const { data, isPending } = authClient.useSession();
+  useUpdateSession();
 
   if (data && !isPending) {
     const query = new URLSearchParams(window.location.search);

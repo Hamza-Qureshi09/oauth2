@@ -158,11 +158,7 @@ function Login() {
                       const { error } = await authClient.signIn.passkey();
 
                       if (error) {
-                        toast.error(
-                          typeof error.message === "string"
-                            ? error.message
-                            : error.message?.message,
-                        );
+                        toast.error(error.message);
                         return;
                       }
 
