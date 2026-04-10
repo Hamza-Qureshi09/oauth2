@@ -39,7 +39,7 @@ function Tabs({
       triggerEl.scrollIntoView({
         behavior: "smooth",
         block: "nearest",
-        inline: "center",
+        inline: "start",
       });
     }
   }, []);
@@ -140,12 +140,13 @@ function Tabs({
 function TabsList({
   className,
   children,
+  right,
   ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
+}: { right?: () => React.ReactNode } & React.HTMLAttributes<HTMLDivElement>) {
   const { listRef } = useTabs();
 
   return (
-    <div className="p-2">
+    <div className="flex items-center gap-x-5 p-2">
       <div
         ref={listRef}
         className={cn(
@@ -157,6 +158,7 @@ function TabsList({
       >
         {children}
       </div>
+      {right?.()}
     </div>
   );
 }

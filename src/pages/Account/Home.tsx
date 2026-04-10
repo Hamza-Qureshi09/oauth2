@@ -36,6 +36,8 @@ import { useLoading } from "@/contexts/Loading";
 import { GravatarQuickEditorCore } from "@gravatar-com/quick-editor";
 import React from "react";
 import UpdateProfile from "./UpdateProfile";
+import { ActionSheetRef } from "@/registry/ActionSheet";
+import type { SessionsPromise } from "@/components/SessionSwitcher";
 
 const tabs = [
   { id: "home", icon: HomeIcon, label: "Home" },
@@ -53,6 +55,9 @@ function Home() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
+  const [sessionsPromise, setSessionsPromise] = React.useState(
+    () => authClient.multiSession.listDeviceSessions() as SessionsPromise,
+  );
 
   const { setLoading } = useLoading();
 
@@ -87,6 +92,45 @@ function Home() {
     [email, refetch],
   );
 
+  const signOutUser = async () => {
+    setLoading(true);
+    const { error } = await authClient
+      .signOut()
+      .finally(() => setLoading(false));
+
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+
+    navigate("/login");
+  };
+
+  const openSessionSwitcher = () => {
+    ActionSheetRef.current?.trigger("sessionSwitcher", true, {
+      activeToken: data?.session?.token,
+      activeUser: data?.user,
+      sessionsPromise,
+      onSwitch: async (token: string) => {
+        setLoading(true);
+        await authClient.multiSession.setActive({ sessionToken: token });
+        refetch();
+        setSessionsPromise(
+          () => authClient.multiSession.listDeviceSessions() as SessionsPromise,
+        );
+        setLoading(false);
+      },
+      onAddAccount: () => {
+        // will do new account signup here
+      },
+      onManage: () => {
+        // for now redirecting to profile page
+        navigate("/account/#personal");
+      },
+      onSignOut: () => signOutUser(),
+    });
+  };
+
   return (
     <div className="w-full h-full bg-muted-foreground/5 dark:bg-muted/30">
       <Tabs
@@ -95,7 +139,20 @@ function Home() {
           navigate(location.pathname + `/#${tab}`, { replace: true })
         }
       >
-        <TabsList className="w-full max-w-fit mx-auto">
+        <TabsList
+          className="w-full max-w-fit mx-auto"
+          right={() => (
+            <Avatar
+              className={"size-10 border-3 border-primary/30 cursor-pointer"}
+              onClick={openSessionSwitcher}
+            >
+              <AvatarImage src={data?.user?.image ?? undefined} />
+              <AvatarFallback className="text-xl">
+                {getInitials(fullName)}
+              </AvatarFallback>
+            </Avatar>
+          )}
+        >
           {tabs.map((tab) => (
             <TabButton key={tab.id} value={tab.id}>
               <tab.icon /> {tab.label}
@@ -104,8 +161,8 @@ function Home() {
         </TabsList>
 
         <TabPanel className="w-full h-[calc(100svh-68px)] pt-10">
-          <TabContent value={"home"}>
-            <div className="flex flex-col gap-2 items-center justify-start h-full pt-20">
+          <TabContent value={"home"} className="h-max">
+            <div className="flex flex-col gap-2 items-center justify-start pt-20 w-full max-w-lg mx-auto">
               <Avatar className={"size-36 border"}>
                 <AvatarImage src={data?.user?.image ?? undefined} />
                 <AvatarFallback className="text-xl">
@@ -116,25 +173,7 @@ function Home() {
               <h3 className="text-xl font-medium">{fullName}</h3>
               <p>{data?.user?.email}</p>
 
-              <Button
-                onClick={async () => {
-                  setLoading(true);
-                  const { error } = await authClient
-                    .signOut()
-                    .finally(() => setLoading(false));
-
-                  if (error) {
-                    toast.error(error.message);
-                    return;
-                  }
-
-                  navigate("/login");
-                }}
-              >
-                {t("Logout")}
-              </Button>
-              {/* 
-              <div className="pt-10">hello</div> */}
+              <Button onClick={async () => signOutUser()}>{t("Logout")}</Button>
             </div>
           </TabContent>
           <TabContent value={"personal"}>
