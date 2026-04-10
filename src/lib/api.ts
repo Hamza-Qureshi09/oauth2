@@ -1,5 +1,5 @@
 export const apiOrigin =
-  import.meta.env.VITE_API_ORIGIN ?? window.location.origin;
+  import.meta.env.VITE_API_ORIGIN || window.location.origin;
 
 export type TAppBranding = {
   name: string;

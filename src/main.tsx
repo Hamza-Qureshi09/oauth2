@@ -14,10 +14,11 @@ import Signup from "./pages/Signup";
 import Consent from "./pages/Login/Consent";
 import { ThunderSDK } from "thunder-sdk";
 import { toast } from "sonner";
+import { apiOrigin } from "./lib/api";
 
 ThunderSDK.init({
   axiosConfig: {
-    baseURL: import.meta.env.VITE_API_ORIGIN || window.location.origin,
+    baseURL: apiOrigin,
     withCredentials: true,
   },
 });
