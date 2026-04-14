@@ -115,7 +115,8 @@ export function parseUserAgent(ua: string) {
 
   const isMobile = /mobi|android/i.test(userAgent);
 
-  const isTablet = /ipad/i.test(userAgent) ||
+  const isTablet =
+    /ipad/i.test(userAgent) ||
     /tablet/i.test(userAgent) ||
     (/android/i.test(userAgent) && !/mobile/i.test(userAgent));
 

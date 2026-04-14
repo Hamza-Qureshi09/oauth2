@@ -133,7 +133,7 @@ function Home() {
           ))}
         </TabsList>
 
-        <TabPanel className="w-full h-[calc(100svh-68px)] pt-10">
+        <TabPanel className="w-full h-[calc(100svh-60px)] pt-5">
           <TabContent value={"home"} className="h-max">
             <div className="flex flex-col gap-2 items-center justify-start pt-20 w-full max-w-lg mx-auto">
               <Avatar className={"size-36 border"}>

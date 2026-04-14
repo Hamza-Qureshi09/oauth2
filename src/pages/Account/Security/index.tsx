@@ -13,7 +13,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import useSWR from "swr";
-import SetupTwoFactor from "./2FA/SetupTwoFactor";
+import { SetupTwoFactor } from "./2FA/SetupTwoFactor";
 import { useLoading } from "@/contexts/Loading";
 import { Badge } from "@/components/ui/badge";
 import DisableTwoFactor from "./2FA/DisableTwoFactor";

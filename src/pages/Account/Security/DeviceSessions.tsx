@@ -39,7 +39,7 @@ export function DeviceSessions() {
     async () => await authClient.listSessions(),
   );
 
-  const deviceSessions = data?.data ?? [];
+  const deviceSessions = React.useMemo(() => data?.data ?? [], [data?.data]);
 
   const sessions = React.useMemo(() => {
     return (deviceSessions ?? []).reduce<Record<string, typeof deviceSessions>>(

@@ -1,7 +1,7 @@
 import js from "@eslint/js";
 import globals from "globals";
 import reactHooks from "eslint-plugin-react-hooks";
-import reactRefresh from "eslint-plugin-react-refresh";
+import { reactRefresh } from "eslint-plugin-react-refresh";
 import tseslint from "typescript-eslint";
 import { defineConfig, globalIgnores } from "eslint/config";
 
@@ -13,15 +13,16 @@ export default defineConfig([
       js.configs.recommended,
       tseslint.configs.recommended,
       reactHooks.configs.flat.recommended,
-      reactRefresh.config.vite,
+      reactRefresh.configs.vite(),
     ],
     rules: {
-      "prettier/prettier": "error",
       "react/no-unescaped-entities": "off",
       "react-hooks/refs": "off",
       "react-hooks/incompatible-library": "off",
       "react/react-in-jsx-scope": "off",
       "react/no-unknown-property": "off",
+      "@typescript-eslint/ban-ts-comment": "off",
+      "react-refresh/only-export-components": "off",
       "react/prop-types": "off",
       "jsx-a11y/anchor-is-valid": "off",
       "jsx-a11y/label-has-associated-control": "off",

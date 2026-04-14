@@ -28,8 +28,8 @@ import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { authClient } from "@/lib/auth";
 import { toast } from "sonner";
 import ScanAndVerifyAuth from "./ScanAndVerifyAuth";
-import type { DialogRootActions } from "@base-ui/react";
 import SaveRecoveryCodes from "./SaveRecoverCodes";
+import type { DialogRootActions } from "@base-ui/react";
 
 const DefaultForm = {
   issuer: "",
@@ -40,7 +40,7 @@ export const actionsRef = React.createRef<DialogRootActions>();
 
 export type TAuthData = { totpURI: string; backupCodes: string[] };
 
-function SetupTwoFactor() {
+export function SetupTwoFactor() {
   const { t } = useTranslation();
   const [authData, setAuthData] = React.useState<TAuthData>();
   const [step, setStep] = React.useState(0);
@@ -84,8 +84,6 @@ function SetupTwoFactor() {
     </>
   );
 }
-
-export default SetupTwoFactor;
 
 function VerifyIdentity({
   onSuccess,

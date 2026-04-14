@@ -9,7 +9,7 @@ import { useFavicon } from "./hooks/useFavicon";
 import { useLanguage } from "./hooks/useLanguage";
 import { applyThemeVars } from "./lib/utils";
 import { ActionSheetRef } from "./registry/ActionSheet";
-import LoadingProvider from "./contexts/Loading";
+import { LoadingProvider } from "./contexts/Loading";
 import { SWRConfig } from "swr";
 
 function App() {
@@ -37,7 +37,7 @@ function App() {
     >
       <DirectionProvider direction={direction}>
         <LoadingProvider>
-          <div className="isolate relative flex w-full h-full min-h-svh flex-col items-center justify-center gap-5 bg-linear-to-t from-primary/10 to-transparent to-40%">
+          <div className="isolate relative flex w-full h-full min-h-svh flex-col gap-5 bg-linear-to-t from-primary/10 to-transparent to-40%">
             <Outlet />
           </div>
 

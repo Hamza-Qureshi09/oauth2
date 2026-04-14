@@ -7,7 +7,7 @@ const TabsContext = React.createContext<{
   onValueChange?: (value: string) => void;
   listRef: React.RefObject<HTMLDivElement | null>;
   panelRef: React.RefObject<HTMLDivElement | null>;
-  scrollToValue: (id: string) => void;
+  scrollToActiveTab: (value: string) => void;
 } | null>(null);
 
 function useTabs() {
@@ -24,99 +24,55 @@ function Tabs({
   defaultValue: string;
   onValueChange: (value: string) => void;
 }) {
-  const isManualScrolling = React.useRef(false);
+  const count = React.useRef(0);
   const listRef = React.useRef<HTMLDivElement | null>(null);
   const panelRef = React.useRef<HTMLDivElement | null>(null);
 
-  const scrollToActiveTab = React.useCallback((targetValue: string) => {
-    const listEl = listRef.current;
-
-    const triggerEl = listEl?.querySelector(
-      `[data-value="${targetValue}"]`,
-    ) as HTMLElement;
-
-    if (triggerEl) {
-      triggerEl.scrollIntoView({
-        behavior: "smooth",
-        block: "nearest",
-        inline: "start",
-      });
-    }
-  }, []);
-
-  const scrollToValue = React.useCallback(
-    (id: string) => {
-      isManualScrolling.current = true;
-      const panelEl = panelRef.current;
+  const scrollToActiveTab = React.useCallback(
+    (value: string) => {
       const contentEl = panelRef.current?.querySelector(
-        `[data-value="${id}"]`,
+        `[data-value="${value}"]`,
       ) as HTMLElement;
 
-      if (panelEl && contentEl) {
-        const left = contentEl.offsetLeft;
-        panelEl.scrollTo({ left, behavior: "smooth" });
+      const triggerEl = listRef.current?.querySelector(
+        `[data-value="${value}"]`,
+      ) as HTMLElement;
+
+      if (contentEl && triggerEl) {
+        contentEl.scrollIntoView({
+          behavior: "smooth",
+          block: "nearest",
+          inline: "start",
+        });
+
+        triggerEl.scrollIntoView({
+          behavior: "smooth",
+          block: "nearest",
+          inline: "start",
+        });
+
+        onValueChange?.(value);
       }
-
-      onValueChange?.(id);
-
-      // Pass the id to scrollToActiveTab so it finds the correct tab
-      scrollToActiveTab(id);
-
-      setTimeout(() => {
-        isManualScrolling.current = false;
-      }, 600);
     },
-    [scrollToActiveTab],
+    [panelRef, listRef, onValueChange],
   );
 
   React.useEffect(() => {
-    scrollToValue(defaultValue);
-  }, [scrollToValue, defaultValue]);
-
-  //   React.useEffect(() => {
-  //     const snapItems = panelRef.current?.querySelectorAll("[data-value]");
-  //     // Options for the Intersection Observer
-  //     // threshold: 0.5 means the callback fires when 50% of the item is visible
-  //     // root: container is the scrollable area
-  //     const options = {
-  //       root: panelRef.current,
-  //       rootMargin: "0px",
-  //       threshold: 0.5,
-  //     };
-
-  //     // Callback function when an item intersects the view
-  //     const observerCallback = (entries: IntersectionObserverEntry[]) => {
-  //       entries.forEach((entry) => {
-  //         if (entry.isIntersecting) {
-  //           if (isManualScrolling.current) return;
-  //           // An item is now intersecting enough to be considered active
-  //           const activeId = entry.target.getAttribute("data-value");
-  //           if (activeId) {
-  //             scrollToActiveTab(activeId);
-  //             onValueChange(activeId);
-  //           }
-  //         }
-  //       });
-  //     };
-
-  //     // Create the observer and observe all items
-  //     const observer = new IntersectionObserver(observerCallback, options);
-  //     snapItems?.forEach((item) => {
-  //       observer.observe(item);
-  //     });
-
-  //     return () => observer.disconnect();
-  //   }, [panelRef, onValueChange, scrollToValue, scrollToActiveTab]);
+    if (count.current === 0) {
+      scrollToActiveTab(defaultValue);
+      count.current++;
+    }
+  }, [defaultValue, scrollToActiveTab]);
 
   const value = React.useMemo(
     () => ({
       defaultValue,
       onValueChange,
-      scrollToValue,
+      scrollToActiveTab,
       listRef,
       panelRef,
     }),
-    [defaultValue, onValueChange, scrollToValue],
+    [defaultValue, onValueChange, listRef, panelRef, scrollToActiveTab],
   );
 
   return (
@@ -139,29 +95,35 @@ function Tabs({
 
 function TabsList({
   className,
+  containerClassName = "max-w-fit mx-auto",
+  variant = "default",
   children,
   right,
   ...props
 }: {
+  variant?: "default" | "filled";
   containerClassName?: string;
   right?: () => React.ReactNode;
 } & React.HTMLAttributes<HTMLDivElement>) {
   const { listRef } = useTabs();
 
   return (
-    <div className={"flex items-center gap-x-5 p-2 max-w-fit mx-auto"}>
-      <div
-        ref={listRef}
-        className={cn(
-          "relative flex p-2 gap-2 snap-x snap-mandatory overflow-x-auto hide-scrollbar",
-          className,
-        )}
-        role="tablist"
-        {...props}
-      >
-        {children}
+    <div className={cn("p-2", containerClassName)}>
+      <div className="flex items-center gap-x-5 rounded-xl w-full">
+        <div
+          ref={listRef}
+          className={cn(
+            "relative flex p-1 gap-2 snap-x snap-mandatory overflow-x-auto hide-scrollbar rounded-md",
+            className,
+            variant === "filled" ? "bg-background" : "",
+          )}
+          role="tablist"
+          {...props}
+        >
+          {children}
+        </div>
+        {right?.()}
       </div>
-      {right?.()}
     </div>
   );
 }
@@ -169,23 +131,22 @@ function TabsList({
 function TabButton({
   className,
   value,
+  variant,
   ...props
 }: React.ComponentProps<typeof Button> & { value: string }) {
-  const { defaultValue, scrollToValue } = useTabs();
+  const { defaultValue, scrollToActiveTab } = useTabs();
 
   return (
     <Button
       size="lg"
-      variant={defaultValue === value ? "default" : "ghost"}
+      variant={defaultValue === value ? variant : "ghost"}
       className={cn(
         "snap-start flex shrink-0 grow cursor-pointer items-center justify-center whitespace-nowrap transition-[color,background-color,box-shadow]",
         className,
       )}
       data-value={value}
       data-slot="tabs-trigger"
-      onClick={() => {
-        scrollToValue(value);
-      }}
+      onClick={() => scrollToActiveTab(value)}
       role="tab"
       {...props}
     />
@@ -232,10 +193,7 @@ function TabContent({
     <div
       id={value}
       data-value={value}
-      className={cn(
-        "snap-start shrink-0 w-full flex items-center justify-center",
-        className,
-      )}
+      className={cn("snap-start shrink-0 w-full", className)}
       data-slot="tabs-panel"
       role="tabpanel"
       {...props}

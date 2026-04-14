@@ -11,14 +11,12 @@ import { useLoading } from "@/contexts/Loading";
 import { ButtonGroup } from "./ui/group";
 import { toast } from "sonner";
 import { ActionSheetRef } from "@/registry/ActionSheet";
-import { useNavigate } from "react-router";
 import { Skeleton } from "./ui/skeleton";
 import { SkeletonRepeater } from "./SkeletonRepeater";
 
 export const SessionSwitcher = () => {
   const { t } = useTranslation();
   const { isLoading, setLoading } = useLoading();
-  const navigate = useNavigate();
   const { data: session } = authClient.useSession();
   const user = session?.user;
 

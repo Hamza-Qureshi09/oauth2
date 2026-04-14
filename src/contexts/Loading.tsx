@@ -16,7 +16,7 @@ export function useLoading() {
   return context;
 }
 
-function LoadingProvider({
+export function LoadingProvider({
   className,
   children,
 }: {
@@ -51,5 +51,3 @@ function LoadingProvider({
     </LoadingContext.Provider>
   );
 }
-
-export default LoadingProvider;
