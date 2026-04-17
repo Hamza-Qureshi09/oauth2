@@ -24,7 +24,7 @@ function Tabs({
   defaultValue: string;
   onValueChange: (value: string) => void;
 }) {
-  const count = React.useRef(0);
+  const isFirstRender = React.useRef(true);
   const listRef = React.useRef<HTMLDivElement | null>(null);
   const panelRef = React.useRef<HTMLDivElement | null>(null);
 
@@ -38,31 +38,33 @@ function Tabs({
         `[data-value="${value}"]`,
       ) as HTMLElement;
 
-      if (contentEl && triggerEl) {
+      if (contentEl) {
         contentEl.scrollIntoView({
           behavior: "smooth",
           block: "nearest",
           inline: "start",
         });
+      }
 
+      if (triggerEl) {
         triggerEl.scrollIntoView({
           behavior: "smooth",
           block: "nearest",
           inline: "start",
         });
-
-        onValueChange?.(value);
       }
+
+      onValueChange?.(value);
     },
-    [panelRef, listRef, onValueChange],
+    [panelRef, listRef],
   );
 
   React.useEffect(() => {
-    if (count.current === 0) {
+    if (isFirstRender.current && defaultValue) {
       scrollToActiveTab(defaultValue);
-      count.current++;
+      isFirstRender.current = false;
     }
-  }, [defaultValue, scrollToActiveTab]);
+  }, [defaultValue]);
 
   const value = React.useMemo(
     () => ({
@@ -146,7 +148,9 @@ function TabButton({
       )}
       data-value={value}
       data-slot="tabs-trigger"
-      onClick={() => scrollToActiveTab(value)}
+      onClick={() => {
+        scrollToActiveTab(value);
+      }}
       role="tab"
       {...props}
     />

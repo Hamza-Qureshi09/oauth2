@@ -51,3 +51,34 @@ export function LoadingProvider({
     </LoadingContext.Provider>
   );
 }
+
+export const ProgressLoading = ({
+  isLoading,
+  className,
+}: {
+  isLoading: boolean;
+  className?: string;
+}) => {
+  return (
+    <div
+      className={cn(
+        "fixed w-full z-999999999999999",
+        isLoading ? "visible" : "invisible",
+      )}
+    >
+      <div className={`relative w-full h-1.25 overflow-hidden ${className}`}>
+        <div className="absolute inset-0 bg-primary animate-[slide_2s_ease-in-out_infinite_alternate]" />
+        <style>{`
+            @keyframes slide {
+              0% {
+                transform: translateX(-80%);
+              }
+              100% {
+                transform: translateX(80%);
+              }
+            }
+          `}</style>
+      </div>
+    </div>
+  );
+};

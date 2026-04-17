@@ -15,8 +15,10 @@ import Consent from "./pages/Login/Consent";
 import { ThunderSDK } from "thunder-sdk";
 import { toast } from "sonner";
 import { apiOrigin } from "./lib/api";
+import { Invite } from "./pages/Account/Members/Invite";
 
 ThunderSDK.init({
+  logs: true,
   axiosConfig: {
     baseURL: apiOrigin,
     withCredentials: true,
@@ -49,11 +51,19 @@ const router = createBrowserRouter(
               index: true,
               element: <Home />,
             },
+            // {
+            //   path: "/:accountId",
+            //   element: <Members />,
+            // },
           ],
         },
         {
           path: "/consent",
           element: <Consent />,
+        },
+        {
+          path: "/invite/:token",
+          element: <Invite />,
         },
         {
           path: "/login",

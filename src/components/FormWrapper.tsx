@@ -28,34 +28,36 @@ function FormWrapper({
   const loading = isLoading || capLoading;
 
   return (
-    <div className="flex w-full max-w-sm flex-col gap-3 px-3">
-      <title>
-        {loading
-          ? t("Loading OAuth")
-          : error?.message
-            ? t("OAuth Crashed")
-            : `${title} - ${app?.name}`}
-      </title>
+    <div className="w-full h-full min-h-svh flex items-center justify-center">
+      <div className="flex w-full max-w-sm flex-col gap-3 px-3">
+        <title>
+          {loading
+            ? t("Loading OAuth")
+            : error?.message
+              ? t("OAuth Crashed")
+              : `${title} - ${app?.name}`}
+        </title>
 
-      <div className="flex items-center gap-3 self-center">
-        {consentLogo}
-        <Avatar className="rounded-xl size-16 bg-transparent">
-          {loading ? (
-            <Skeleton className="w-16 h-16" />
-          ) : (
-            <Link to="/">
-              <AvatarImage src={logo} alt={appName} />
-              <AvatarFallback>
-                <AvatarImage src={HurufLogo} alt={"Huruf tech"} />
-              </AvatarFallback>
-            </Link>
-          )}
-        </Avatar>
+        <div className="flex items-center gap-3 self-center">
+          {consentLogo}
+          <Avatar className="rounded-xl size-16 bg-transparent">
+            {loading ? (
+              <Skeleton className="w-16 h-16" />
+            ) : (
+              <Link to="/">
+                <AvatarImage src={logo} alt={appName} />
+                <AvatarFallback>
+                  <AvatarImage src={HurufLogo} alt={"Huruf tech"} />
+                </AvatarFallback>
+              </Link>
+            )}
+          </Avatar>
+        </div>
+
+        {loading ? <FormSkeleton /> : children}
+
+        <PoweredBy />
       </div>
-
-      {loading ? <FormSkeleton /> : children}
-
-      <PoweredBy />
     </div>
   );
 }

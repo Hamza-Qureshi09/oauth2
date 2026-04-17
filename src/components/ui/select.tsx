@@ -26,6 +26,7 @@ const selectTriggerVariants = cva(
         default: "",
         lg: "min-h-10 sm:min-h-9",
         sm: "min-h-8 gap-1.5 px-[calc(--spacing(2.5)-1px)] sm:min-h-7",
+        xs: "min-h-7 gap-1 px-[calc(--spacing(2)-1px)] sm:min-h-6",
       },
     },
   },

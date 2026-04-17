@@ -9,7 +9,6 @@ import {
   Shield,
   ShieldCheck,
   UserRound,
-  Users2,
   XCircle,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -31,12 +30,13 @@ import OAuth2 from "@/components/custom-icons/oauth2";
 import OAuth from "./Oauth";
 import Security from "./Security";
 import { toast } from "sonner";
-import { useLocation, useNavigate } from "react-router";
+import { useLocation, useSearchParams } from "react-router";
 import { useLoading } from "@/contexts/Loading";
 import { GravatarQuickEditorCore } from "@gravatar-com/quick-editor";
 import React from "react";
 import UpdateProfile from "./UpdateProfile";
 import { ActionSheetRef } from "@/registry/ActionSheet";
+import { Members } from "./Members";
 
 const tabs = [
   { id: "home", icon: HomeIcon, label: "Home" },
@@ -47,15 +47,13 @@ const tabs = [
     icon: OAuth2,
     label: "OAuth2",
   },
-  { id: "collaborators", icon: Users2, label: "Collaborators" },
 ];
 
 function Home() {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const location = useLocation();
-
   const { setLoading } = useLoading();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const { data, refetch } = authClient.useSession();
 
@@ -88,27 +86,22 @@ function Home() {
     [email, refetch],
   );
 
-  const signOutUser = async () => {
-    setLoading(true);
-    const { error } = await authClient
-      .signOut()
-      .finally(() => setLoading(false));
+  const defaultValue = React.useMemo(() => {
+    const search = searchParams.get("tab") || "home";
 
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-
-    navigate("/login");
-  };
+    return search === "members" && !searchParams.get("account")
+      ? "home"
+      : search;
+  }, [location.search]);
 
   return (
     <div className="w-full h-full bg-muted-foreground/5 dark:bg-muted/30">
       <Tabs
-        defaultValue={location.hash.replaceAll("#", "") || "home"}
-        onValueChange={(tab) =>
-          navigate(location.pathname + `/#${tab}`, { replace: true })
-        }
+        defaultValue={defaultValue}
+        onValueChange={(tab) => {
+          searchParams.set("tab", tab);
+          setSearchParams(searchParams);
+        }}
       >
         <TabsList
           className="w-full max-w-fit mx-auto"
@@ -146,7 +139,21 @@ function Home() {
               <h3 className="text-xl font-medium">{fullName}</h3>
               <p>{data?.user?.email}</p>
 
-              <Button onClick={async () => signOutUser()}>{t("Logout")}</Button>
+              <Button
+                onClick={async () => {
+                  setLoading(true);
+                  const { error } = await authClient
+                    .signOut()
+                    .finally(() => setLoading(false));
+
+                  if (error) {
+                    toast.error(error.message);
+                    return;
+                  }
+                }}
+              >
+                {t("Logout")}
+              </Button>
             </div>
           </TabContent>
           <TabContent value={"personal"}>
@@ -268,7 +275,9 @@ function Home() {
           <TabContent value={"oauth2"}>
             <OAuth />
           </TabContent>
-          <TabContent value={"collaborators"}>Collaborators</TabContent>
+          <TabContent value={"members"}>
+            <Members />
+          </TabContent>
         </TabPanel>
 
         <TabBullets />
