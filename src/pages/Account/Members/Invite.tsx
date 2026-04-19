@@ -6,7 +6,7 @@ import useSWR from "swr";
 import { ThunderSDK } from "thunder-sdk";
 
 export const Invite = () => {
-  const { token } = useParams<{ token: string }>();
+  const { userId } = useParams<{ userId: string }>();
   const { t } = useTranslation();
   const navigate = useNavigate();
 
@@ -15,7 +15,7 @@ export const Invite = () => {
     async () =>
       await ThunderSDK.accountMembers.create({
         body: {
-          invite: token,
+          invite: userId,
         },
       }),
   );
@@ -53,7 +53,7 @@ export const Invite = () => {
           </>
         ) : (
           <>
-            <div className="h-10 w-10 rounded-full bg-red-700 flex flex-col justify-center items-center">
+            <div className="h-10 w-10 rounded-full bg-destructive flex flex-col justify-center items-center">
               <CircleX className="" />
             </div>
 

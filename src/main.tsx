@@ -62,7 +62,7 @@ const router = createBrowserRouter(
           element: <Consent />,
         },
         {
-          path: "/invite/:token",
+          path: "/invite/:userId",
           element: <Invite />,
         },
         {

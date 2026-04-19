@@ -1,6 +1,5 @@
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import useSWR from "swr";
 import { ThunderSDK } from "thunder-sdk";
 import {
   Field,
@@ -80,7 +79,7 @@ export const CreateInvite = ({ onSuccess }: { onSuccess?: () => void }) => {
             {t("Invite Member")}
             <Info className="size-4" />
           </FieldLabel>
-          <Field orientation={"horizontal"} className="">
+          <Field orientation={"horizontal"}>
             <InputGroup>
               <InputGroupInput
                 type="email"

@@ -178,41 +178,6 @@ export function ListInvites() {
                       </Button>
                     </Group>
                   </div>
-
-                  {/* <div className="flex flex-col justify-between items-end gap-3">
-                  <Group aria-label="Member actions">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger
-                        render={<Button variant="outline" />}
-                      >
-                        Actions <EllipsisVertical />
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent>
-                        <DropdownMenuGroup>
-                          <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                          <DropdownMenuItem>
-                            <CreateMember
-                              //   data={item}
-                              render={
-                                <div className="flex gap-1 items-center">
-                                  <SquarePenIcon />
-                                  {t("Edit")}
-                                </div>
-                              }
-                              // onSuccess={mutate}
-                            />{" "}
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>Billing</DropdownMenuItem>
-                        </DropdownMenuGroup>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuGroup>
-                          <DropdownMenuItem>Team</DropdownMenuItem>
-                          <DropdownMenuItem>Subscription</DropdownMenuItem>
-                        </DropdownMenuGroup>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </Group>
-                </div> */}
                 </Item>
               );
             })

@@ -9,14 +9,10 @@ import {
 import React from "react";
 import { ListInvites } from "./ListInvites";
 import { ListMembers } from "./ListMembers";
-import { useSearchParams } from "react-router";
 
 export const Members = () => {
   const { t } = useTranslation();
   const [tab, setTab] = React.useState("pending");
-
-  const [searchParams] = useSearchParams();
-  const accountId = searchParams.get("accountId");
 
   return (
     <>

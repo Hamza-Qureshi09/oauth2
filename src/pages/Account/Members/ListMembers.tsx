@@ -119,7 +119,7 @@ export function ListMembers() {
                       <div className="flex items-center gap-1">
                         <h3 className="font-medium ">{t("Email")}</h3>
                         {item.isOwner && (
-                          <Badge variant={"warning"}>Owner</Badge>
+                          <Badge variant={"warning"}>{t("Owner")}</Badge>
                         )}
                       </div>
                       <div className="flex flex-row gap-1">
