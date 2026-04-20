@@ -24,6 +24,7 @@ export default defineConfig([
       "@typescript-eslint/ban-ts-comment": "off",
       "react-refresh/only-export-components": "off",
       "react/prop-types": "off",
+      "--allow-empty": "off",
       "jsx-a11y/anchor-is-valid": "off",
       "jsx-a11y/label-has-associated-control": "off",
       "jsx-a11y/click-events-have-key-events": "off",
