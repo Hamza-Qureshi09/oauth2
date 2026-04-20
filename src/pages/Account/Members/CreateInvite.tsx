@@ -32,6 +32,7 @@ const DefaultForm: Parameters<
 >[number]["body"] = {
   email: "",
   role: "",
+  url: "",
 };
 
 export const CreateInvite = ({ onSuccess }: { onSuccess?: () => void }) => {
@@ -51,6 +52,7 @@ export const CreateInvite = ({ onSuccess }: { onSuccess?: () => void }) => {
         body: {
           email: formData.email,
           role: formData.role,
+          url: new URL(`invite/{{_id}}`, window.location.origin).toString(),
         },
         axiosConfig: {
           headers: {

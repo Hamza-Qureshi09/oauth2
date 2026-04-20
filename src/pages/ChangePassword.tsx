@@ -66,7 +66,7 @@ function ChangePassword() {
         token,
       });
 
-      if (Response.error === null) navigate("/");
+      if (Response.error === null) navigate("/", { viewTransition: true });
       else toast.error(Response.error.message);
     } else
       toast.error(

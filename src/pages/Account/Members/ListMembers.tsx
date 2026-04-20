@@ -4,11 +4,10 @@ import useSWR from "swr";
 import { Badge } from "@/components/ui/badge";
 import { getInitials } from "@/lib/utils";
 import { ThunderSDK } from "thunder-sdk";
-import { SquarePenIcon, Trash2Icon, User2 } from "lucide-react";
+import { Trash2Icon, User2 } from "lucide-react";
 import Item from "@/components/Item";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Group } from "@/components/ui/group";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SkeletonRepeater } from "@/components/SkeletonRepeater";
 import {
@@ -143,17 +142,25 @@ export function ListMembers() {
                       id="role"
                       value={item.role ?? ""}
                       onValueChange={async (role) => {
+                        if (role === item.role) return;
                         setLoading(true);
                         const { status } = await ThunderSDK.accountMembers
                           .update({
                             params: { id: item._id },
                             body: { role: role! },
+                            axiosConfig: {
+                              headers: {
+                                "X-ACCOUNT-ID": accountId,
+                              },
+                            },
                           })
                           .raw.finally(() => setLoading(false));
                         if (status > 200 || status < 400) mutate(data);
                       }}
                       disabled={
-                        userSession?.user.id === item.createdBy || isLoading
+                        userSession?.user.id !== item.createdBy ||
+                        item.isOwner === true ||
+                        isLoading
                       }
                     >
                       <SelectTrigger size={"xs"} className={"min-w-0"}>
@@ -182,7 +189,10 @@ export function ListMembers() {
                       <Button
                         variant="destructive-outline"
                         size="icon-sm"
-                        disabled={userSession?.user.id === item.createdBy}
+                        disabled={
+                          userSession?.user.id !== item.createdBy ||
+                          item.isOwner === true
+                        }
                         onClick={async () => {
                           const el = document.querySelector(
                             `[data-index="${item._id}"]`,
@@ -207,7 +217,7 @@ export function ListMembers() {
 
                             setTimeout(() => mutate(), 400);
                           } catch (error) {
-                            console.log("error", error);
+                            console.error("error", error);
                           } finally {
                             setLoading(false);
                           }

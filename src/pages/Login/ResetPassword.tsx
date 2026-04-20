@@ -87,7 +87,10 @@ function ResetPassword() {
                   </Button>
                   <FieldDescription className="px-6 text-center">
                     <Trans i18nKey={"goBackToSignIn"}>
-                      Go back to <Link to="/">Sign in</Link>
+                      Go back to{" "}
+                      <Link to="/" viewTransition>
+                        Sign in
+                      </Link>
                     </Trans>
                   </FieldDescription>
                 </Field>

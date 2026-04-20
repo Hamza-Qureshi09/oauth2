@@ -30,8 +30,6 @@ function App() {
         dedupingInterval: 5000,
         revalidateOnFocus: false,
         revalidateIfStale: true,
-        shouldRetryOnError: true,
-        errorRetryCount: 3,
         revalidateOnReconnect: true,
       }}
     >

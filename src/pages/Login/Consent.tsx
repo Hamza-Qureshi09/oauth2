@@ -25,7 +25,7 @@ function Consent() {
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-
+  
   const redirectUri = searchParams.get("redirect_uri");
 
   const { error, isLoading } = useSWR(
@@ -62,10 +62,11 @@ function Consent() {
       return;
     }
 
-    navigate("/" + window.location.search, { replace: true });
+    navigate("/" + window.location.search, {
+      replace: true,
+      viewTransition: true,
+    });
   }
-
-  //   const client = data?.results?.[0];
   const clientName = "unknown";
 
   return (
@@ -157,7 +158,11 @@ function Consent() {
         <FieldDescription className="px-6 text-center">
           <Trans i18nKey={"useAnotherAccount"}>
             Not you?{" "}
-            <Link to="/login" className="text-primary no-underline!">
+            <Link
+              to="/login"
+              viewTransition
+              className="text-primary no-underline!"
+            >
               Use another account
             </Link>
           </Trans>

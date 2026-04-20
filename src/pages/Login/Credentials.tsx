@@ -101,7 +101,9 @@ function CredentialsForm({ onShowTwoStep }: { onShowTwoStep: () => void }) {
         <Field>
           <div className="flex items-center justify-between">
             <FieldLabel htmlFor="password">{t("Password")}</FieldLabel>
-            <Link to="/reset-password">{t("Forgot your password?")}</Link>
+            <Link to="/reset-password" viewTransition>
+              {t("Forgot your password?")}
+            </Link>
           </div>
           <InputGroup>
             <InputGroupInput

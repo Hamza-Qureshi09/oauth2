@@ -7,6 +7,6 @@ export function useOnLogin() {
 
   return React.useCallback(() => {
     if (search.has("token")) window.close();
-    else navigate("/" + window.location.search);
+    else navigate("/" + window.location.search, { viewTransition: true });
   }, [search, navigate]);
 }

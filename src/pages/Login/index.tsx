@@ -165,7 +165,9 @@ function Login() {
                         return;
                       }
 
-                      navigate("/" + window.location.search);
+                      navigate("/" + window.location.search, {
+                        viewTransition: true,
+                      });
                     }}
                   >
                     <KeyIcon />
@@ -174,7 +176,10 @@ function Login() {
                 )}
                 <FieldDescription className="text-center">
                   <Trans i18nKey={"noAccount"}>
-                    Don't have an account? <Link to="/signup">Sign up</Link>
+                    Don't have an account?{" "}
+                    <Link to="/signup" viewTransition>
+                      Sign up
+                    </Link>
                   </Trans>
                 </FieldDescription>
               </Field>
@@ -221,7 +226,7 @@ function TwoFactorForm() {
       return;
     }
 
-    navigate("/" + window.location.search);
+    navigate("/" + window.location.search, { viewTransition: true });
   };
 
   return (
@@ -289,7 +294,9 @@ function TwoFactorForm() {
             </form>
           ) : (
             <VerifyTwoFactor
-              onVerifyComplete={() => navigate("/" + window.location.search)}
+              onVerifyComplete={() =>
+                navigate("/" + window.location.search, { viewTransition: true })
+              }
               footerContent={() => (
                 <Button variant="secondary" onClick={() => setUseBackup(true)}>
                   {t("Use backup to restore?")}
@@ -302,7 +309,10 @@ function TwoFactorForm() {
 
       <FieldDescription className="text-center">
         <Trans i18nKey={"otherWayLogin"}>
-          Use an other way to login? <Link to="/">Login</Link>
+          Use an other way to login?{" "}
+          <Link to="/" viewTransition>
+            Login
+          </Link>
         </Trans>
       </FieldDescription>
     </div>

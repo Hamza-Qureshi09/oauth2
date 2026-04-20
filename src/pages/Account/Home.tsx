@@ -22,7 +22,12 @@ import {
 } from "@/components/Tabs";
 import { authClient } from "@/lib/auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { formatDate, getInitials, sha256 } from "@/lib/utils";
+import {
+  formatDate,
+  getInitials,
+  handleUpload,
+  transformImage,
+} from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import Item from "@/components/Item";
 import { Badge } from "@/components/ui/badge";
@@ -32,11 +37,11 @@ import Security from "./Security";
 import { toast } from "sonner";
 import { useLocation, useSearchParams } from "react-router";
 import { useLoading } from "@/contexts/Loading";
-import { GravatarQuickEditorCore } from "@gravatar-com/quick-editor";
 import React from "react";
 import UpdateProfile from "./UpdateProfile";
 import { ActionSheetRef } from "@/registry/ActionSheet";
 import { Members } from "./Members";
+import { AvatarUpload } from "@/components/AvatarUpload";
 
 const tabs = [
   { id: "home", icon: HomeIcon, label: "Home" },
@@ -60,31 +65,6 @@ function Home() {
   const fullName = data?.user?.name || "Unamed";
   const verified = data?.user?.emailVerified;
   const email = data?.user.email ?? "unknown";
-
-  const gravatarCore = React.useMemo(
-    () =>
-      new GravatarQuickEditorCore({
-        email,
-        scope: ["avatars"],
-        onProfileUpdated: async (type) => {
-          if (type === "avatar_updated") {
-            const { error } = await authClient.updateUser({
-              image: `https://www.gravatar.com/avatar/${await sha256(
-                email,
-              )}?s=200&d=identicon`,
-            });
-
-            if (error) {
-              toast.error(error.message);
-              return;
-            }
-
-            refetch();
-          }
-        },
-      }),
-    [email, refetch],
-  );
 
   const defaultValue = React.useMemo(() => {
     const search = searchParams.get("tab") || "home";
@@ -112,7 +92,7 @@ function Home() {
                 ActionSheetRef.current?.trigger("sessionSwitcher", true)
               }
             >
-              <AvatarImage src={data?.user?.image ?? undefined} />
+              <AvatarImage src={transformImage(data?.user.image)} />
               <AvatarFallback className="text-xl">
                 {getInitials(fullName)}
               </AvatarFallback>
@@ -130,7 +110,12 @@ function Home() {
           <TabContent value={"home"} className="h-max">
             <div className="flex flex-col gap-2 items-center justify-start pt-20 w-full max-w-lg mx-auto">
               <Avatar className={"size-36 border"}>
-                <AvatarImage src={data?.user?.image ?? undefined} />
+                <AvatarImage
+                  src={transformImage(data?.user.image, {
+                    width: 250,
+                    height: 250,
+                  })}
+                />
                 <AvatarFallback className="text-xl">
                   {getInitials(fullName)}
                 </AvatarFallback>
@@ -175,24 +160,60 @@ function Home() {
                   {
                     icon: ImageIcon,
                     label: "Profile picture",
-                    right: () => (
-                      <div className="relative">
-                        <Avatar className="size-14 border">
-                          <AvatarImage src={data?.user?.image ?? undefined} />
-                          <AvatarFallback className="text-xl">
-                            {getInitials(fullName)}
-                          </AvatarFallback>
-                        </Avatar>
+                    right: () => {
+                      const avatar = data?.user?.image;
+                      return (
+                        <div className="relative">
+                          <AvatarUpload
+                            id="avatar"
+                            showCancel={false}
+                            initialFile={
+                              avatar
+                                ? {
+                                    id: avatar,
+                                    type: "avatar",
+                                    name: avatar,
+                                    url: avatar,
+                                    size: 0,
+                                  }
+                                : undefined
+                            }
+                            onUpload={async ({ file }, signal) => {
+                              if (file instanceof File && data) {
+                                setLoading(true);
+                                const res = await handleUpload(file, {
+                                  path: [data.user.id, "avatar"],
+                                  signal,
+                                }).finally(() => setLoading(false));
 
-                        <Button
-                          size="icon-xs"
-                          className="absolute right-0 bottom-0"
-                          onClick={() => gravatarCore.open()}
-                        >
-                          <ArrowUpFromLine />
-                        </Button>
-                      </div>
-                    ),
+                                const { error } = await authClient.updateUser({
+                                  image: res.url,
+                                });
+
+                                if (error) {
+                                  toast.error(error.message);
+                                  return;
+                                }
+
+                                refetch();
+                              }
+                            }}
+                          />
+
+                          <label
+                            htmlFor="avatar"
+                            className="absolute right-0 bottom-0"
+                          >
+                            <Button
+                              size="icon-xs"
+                              className="pointer-events-none cursor-pointer"
+                            >
+                              <ArrowUpFromLine />
+                            </Button>
+                          </label>
+                        </div>
+                      );
+                    },
                   },
                   {
                     icon: Contact2,

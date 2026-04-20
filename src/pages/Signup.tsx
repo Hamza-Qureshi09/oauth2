@@ -1,6 +1,6 @@
 import { CheckIcon, EyeIcon, EyeOffIcon, XIcon } from "lucide-react";
 import React, { useId } from "react";
-import { Controller, type SubmitHandler, useForm } from "react-hook-form";
+import { type SubmitHandler, useForm } from "react-hook-form";
 import { Trans, useTranslation } from "react-i18next";
 import { Link, useNavigate, useSearchParams } from "react-router";
 import { toast } from "sonner";
@@ -35,18 +35,8 @@ import {
   getStrengthText,
   isValidEmail,
 } from "@/lib/utils";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { ThunderSDK } from "thunder-sdk";
-import { useMyPolicies } from "@/hooks/useMyPolicies";
 
-const Form = {
+const DefaultForm = {
   fname: "",
   lname: "",
   email: "",
@@ -58,58 +48,32 @@ function Signup() {
   const id = useId();
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const { myPolicies, isLoading } = useMyPolicies();
 
-  const accountId = searchParams.get("account");
+  const [searchParams] = useSearchParams();
+  const redirect = searchParams.get("redirect");
 
   const [showPassword, setShowPassword] = React.useState(false);
 
-  const BaseForm = { ...Form, ...(accountId ? { role: "" } : {}) };
-
-  const { control, register, handleSubmit, formState, watch } = useForm<
-    typeof BaseForm
+  const { register, handleSubmit, formState, watch } = useForm<
+    typeof DefaultForm
   >({
-    defaultValues: BaseForm,
+    defaultValues: DefaultForm,
   });
 
   const password = watch("password");
 
-  const onSubmit: SubmitHandler<typeof BaseForm> = async (data) => {
-    const Response = await authClient.signUp.email({
+  const onSubmit: SubmitHandler<typeof DefaultForm> = async (data) => {
+    const { error } = await authClient.signUp.email({
       name: [data.fname, data?.lname].filter(Boolean).join(" "),
       email: data.email,
       password: data.password,
     });
 
-    if (Response.error === null) {
+    if (!error) {
       // handling invite case
-      if (accountId && Response.data.user.id && data.role) {
-        // create invite for incoming account
-        const { _id } = await ThunderSDK.accountInvites.create({
-          body: {
-            email: data.email,
-            role: data.role,
-          },
-          axiosConfig: {
-            headers: {
-              "X-ACCOUNT-ID": accountId,
-            },
-          },
-        });
-        if (_id) {
-          // accept invite for that account
-          await ThunderSDK.accountMembers.create({
-            body: {
-              invite: Response.data.user.id,
-            },
-          });
-          // close open browser here
-        }
-      } else {
-        navigate("/");
-      }
-    } else toast.error(Response.error.message);
+      if (redirect) window.open(redirect, "_self");
+      else navigate("/", { viewTransition: true });
+    } else toast.error(error.message);
   };
 
   const strength = checkStrength(password);
@@ -154,48 +118,6 @@ function Signup() {
                   />
                 </Field>
               </Field>
-              {accountId && (
-                <Field>
-                  <FieldLabel htmlFor="role">{t("Role")}</FieldLabel>
-                  <Controller
-                    name="role"
-                    control={control}
-                    rules={{
-                      required: t("Role is required"),
-                    }}
-                    render={({ field }) => (
-                      <Select
-                        id="role"
-                        value={field.value ?? ""}
-                        onValueChange={field.onChange}
-                        disabled={isLoading} // disabling while fetching data
-                      >
-                        <SelectTrigger>
-                          <SelectValue
-                            placeholder={t("Select role")}
-                            className="capitalize"
-                          />
-                        </SelectTrigger>
-
-                        <SelectContent>
-                          <SelectGroup>
-                            {myPolicies?.subRoles?.map((role, idx) => (
-                              <SelectItem
-                                key={idx}
-                                value={role}
-                                className="capitalize"
-                              >
-                                {role}
-                              </SelectItem>
-                            ))}
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
-                  <FieldError>{formState.errors.role?.message}</FieldError>
-                </Field>
-              )}
               <Field>
                 <FieldLabel htmlFor="email">{t("Email")}</FieldLabel>
                 <Input
@@ -343,11 +265,12 @@ function Signup() {
                     {t("Create Account")}
                   </Button>
                   <FieldDescription className="px-6 text-center">
-                    {!accountId && (
-                      <Trans i18nKey={"accountExist"}>
-                        Already have an account? <Link to="/">Sign in</Link>
-                      </Trans>
-                    )}
+                    <Trans i18nKey={"accountExist"}>
+                      Already have an account?{" "}
+                      <Link to="/" viewTransition>
+                        Sign in
+                      </Link>
+                    </Trans>
                   </FieldDescription>
                 </Field>
               </FieldGroup>

@@ -2,7 +2,7 @@ import React from "react";
 import type { TActionSheetRef } from "@/components/ActionSheet";
 import Verification from "@/components/Verification";
 import { ConfirmationSheet } from "@/components/Confirmation";
-import { SessionSwitcher } from "@/components/SessionSwitcher";
+import { SessionSwitcher } from "@/pages/Account/SessionSwitcher";
 
 export type TActionSheetRegistry = typeof ActionSheetRegistery;
 

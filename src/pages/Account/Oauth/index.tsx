@@ -3,7 +3,7 @@ import useSWR from "swr";
 import { ThunderSDK } from "thunder-sdk";
 import CreateClient from "./CreateClient";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { getInitials } from "@/lib/utils";
+import { getInitials, transformImage } from "@/lib/utils";
 import Item from "@/components/Item";
 import { SquarePenIcon, Trash2Icon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -98,7 +98,7 @@ function OAuth() {
                     <div className="relative">
                       <Avatar className="size-10 border">
                         <AvatarImage
-                          src={"https://google.com"}
+                          src={transformImage(item.logo)}
                           alt={item.name}
                         />
                         <AvatarFallback>
@@ -163,7 +163,7 @@ function OAuth() {
 
                             setTimeout(() => mutate(), 400);
                           } catch (error) {
-                            console.log("error", error);
+                            console.error("error", error);
                           } finally {
                             setLoading(false);
                           }

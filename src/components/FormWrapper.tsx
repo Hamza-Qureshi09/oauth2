@@ -44,7 +44,7 @@ function FormWrapper({
             {loading ? (
               <Skeleton className="w-16 h-16" />
             ) : (
-              <Link to="/">
+              <Link to="/" viewTransition>
                 <AvatarImage src={logo} alt={appName} />
                 <AvatarFallback>
                   <AvatarImage src={HurufLogo} alt={"Huruf tech"} />

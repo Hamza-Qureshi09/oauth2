@@ -184,7 +184,10 @@ export function DeviceSessions() {
                                     }
 
                                     dismiss();
-                                    if (isActive) navigate("/login");
+                                    if (isActive)
+                                      navigate("/login", {
+                                        viewTransition: true,
+                                      });
                                   },
                                 },
                               );

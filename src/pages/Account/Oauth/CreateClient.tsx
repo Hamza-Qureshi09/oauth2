@@ -27,13 +27,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
-import { generateSecret } from "@/lib/utils";
+import { generateSecret, handleUpload } from "@/lib/utils";
 import { XCircleIcon } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { ThunderSDK } from "thunder-sdk";
 import SaveClientSecret from "./SaveClientSecret";
 import React from "react";
+import { AvatarUpload } from "@/components/AvatarUpload";
+import { useLoading } from "@/contexts/Loading";
+import { authClient } from "@/lib/auth";
 
 const DefaultForm: Parameters<
   typeof ThunderSDK.oauthClients.create
@@ -59,7 +62,9 @@ function CreateClient({
   onSuccess?: () => void;
 }) {
   const { t } = useTranslation();
+  const { setLoading } = useLoading();
   const [clientSecret, setClientSecret] = React.useState<string>();
+  const { data: session } = authClient.useSession();
 
   const { control, register, handleSubmit, setValue, formState, reset } =
     useForm<typeof DefaultForm>({
@@ -131,6 +136,40 @@ function CreateClient({
         <DialogPanel>
           <form onSubmit={handleSubmit(onSubmit)}>
             <FieldGroup>
+              <Field className="flex items-center justify-center w-full">
+                <FieldLabel htmlFor="logo">Client Logo</FieldLabel>
+                <Controller
+                  name="logo"
+                  control={control}
+                  render={({ field }) => (
+                    <AvatarUpload
+                      id="logo"
+                      initialFile={
+                        field.value
+                          ? {
+                              id: field.value,
+                              type: "logo",
+                              name: field.value,
+                              url: field.value,
+                              size: 0,
+                            }
+                          : undefined
+                      }
+                      onUpload={async ({ file }, signal) => {
+                        if (file instanceof File && session) {
+                          setLoading(true);
+                          const res = await handleUpload(file, {
+                            path: [session.user.id, "oauthClient"],
+                            signal,
+                          }).finally(() => setLoading(false));
+
+                          field.onChange(res.url);
+                        }
+                      }}
+                    />
+                  )}
+                />
+              </Field>
               <Field orientation={"horizontal"}>
                 <Controller
                   name="type"
@@ -239,15 +278,6 @@ function CreateClient({
                     validate: (value) => {
                       if (!value || (value as string[]).length === 0) {
                         return t("At least one redirect URI is required!");
-                      } else {
-                        for (const uri of value as string[]) {
-                          try {
-                            new URL(uri);
-                            return true;
-                          } catch {
-                            return t("Invalid URI: {{uri}}", { uri });
-                          }
-                        }
                       }
                       return true;
                     },
@@ -256,7 +286,10 @@ function CreateClient({
                     const fieldValue = (field.value ?? []) as string[];
 
                     const handleInput = (value: string) => {
-                      if (value) field.onChange([...fieldValue, value]);
+                      if (value)
+                        field.onChange(
+                          Array.from(new Set([...fieldValue, value])),
+                        );
                     };
 
                     return (
@@ -267,13 +300,21 @@ function CreateClient({
                         <Input
                           id="redirectUris"
                           aria-label="Enter your domain"
-                          type="text"
+                          type="url"
                           className="*:[input]:px-0!"
                           placeholder={"e.g https://myapp.com"}
                           onKeyDown={(e) => {
                             if (e.key === "Enter") {
                               e.preventDefault();
-                              handleInput((e.target as HTMLInputElement).value);
+                              const target = e.currentTarget;
+                              if (!target.checkValidity()) {
+                                target.reportValidity();
+                                return;
+                              }
+
+                              handleInput(target.value);
+
+                              e.currentTarget.value = "";
                             }
                           }}
                           onBlur={(e) => handleInput(e.target.value)}

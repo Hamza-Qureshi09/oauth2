@@ -1,24 +1,37 @@
 import { Button } from "@/components/ui/button";
+import { authClient } from "@/lib/auth";
 import { BookCheck, CircleX } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useParams, useNavigate } from "react-router";
+import { useParams, useNavigate, Navigate } from "react-router";
 import useSWR from "swr";
 import { ThunderSDK } from "thunder-sdk";
 
 export const Invite = () => {
-  const { userId } = useParams<{ userId: string }>();
+  const { _id } = useParams<{ _id: string }>();
   const { t } = useTranslation();
   const navigate = useNavigate();
 
+  const { data: session, isPending } = authClient.useSession();
+
   const { data, isLoading } = useSWR(
-    "accountMembers.create",
+    "accountMembers.create" + (session?.user.id ?? ""),
     async () =>
-      await ThunderSDK.accountMembers.create({
-        body: {
-          invite: userId,
-        },
-      }),
+      session
+        ? await ThunderSDK.accountMembers.create({
+            body: {
+              invite: _id,
+            },
+          })
+        : null,
   );
+
+  // redirct if not logged in
+  if (!isPending && !session)
+    return (
+      <Navigate
+        to={`/signup?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`}
+      />
+    );
 
   return (
     <div className="flex items-center justify-center min-h-svh bg-muted/30 p-4">
@@ -45,7 +58,9 @@ export const Invite = () => {
             <div className="flex gap-2 w-full">
               <Button
                 className="flex-1"
-                onClick={() => navigate("/", { replace: true })}
+                onClick={() =>
+                  navigate("/", { replace: true, viewTransition: true })
+                }
               >
                 {t("Go to home")}
               </Button>
@@ -69,7 +84,9 @@ export const Invite = () => {
             <div className="flex gap-2 w-full">
               <Button
                 className="flex-1"
-                onClick={() => navigate("/", { replace: true })}
+                onClick={() =>
+                  navigate("/", { replace: true, viewTransition: true })
+                }
               >
                 {t("Go to home")}
               </Button>

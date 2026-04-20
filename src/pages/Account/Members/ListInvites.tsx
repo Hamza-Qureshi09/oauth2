@@ -53,9 +53,7 @@ export function ListInvites() {
   return (
     <div className="flex flex-col gap-3 w-full">
       {/* invite form  */}
-      <CreateInvite
-        onSuccess={mutate}
-      />
+      <CreateInvite onSuccess={mutate} />
 
       {isLoading || isValidating ? (
         <SkeletonRepeater count={3} className="max-w-lg mx-auto px-3">
@@ -168,7 +166,7 @@ export function ListInvites() {
 
                             setTimeout(() => mutate(), 400);
                           } catch (error) {
-                            console.log("error", error);
+                            console.error("error", error);
                           } finally {
                             setLoading(false);
                           }
