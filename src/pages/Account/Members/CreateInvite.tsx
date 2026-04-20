@@ -79,12 +79,11 @@ export const CreateInvite = ({ onSuccess }: { onSuccess?: () => void }) => {
           <FieldLabel htmlFor="recipient" className="text-base">
             {t("Invite Member")}
           </FieldLabel>
-          <Field orientation={"responsive"}>
-            <InputGroup>
+          <Field orientation={"vertical"}>
+            <InputGroup className="flex-1 grow">
               <InputGroupInput
                 type="email"
                 placeholder={t("Email")}
-                className="flex-1"
                 {...register("email", {
                   validate: (value) =>
                     isValidEmail(value)

@@ -25,7 +25,7 @@ function Consent() {
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  
+
   const redirectUri = searchParams.get("redirect_uri");
 
   const { error, isLoading } = useSWR(

@@ -75,7 +75,7 @@ export function ListInvites() {
         </Empty>
       ) : (
         <VirtualList
-          className="h-[calc(100svh-283px)]"
+          className="h-[calc(100svh-340px)]"
           config={{
             count: TenantInvites.length,
             paddingEnd: 500,
