@@ -83,7 +83,7 @@ export function ListMembers() {
         </Empty>
       ) : (
         <VirtualList
-          className="h-[calc(100svh-223px)]"
+          className="h-[calc(100svh-212px)]"
           config={{
             count: members.length,
             paddingEnd: 500,
