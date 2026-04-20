@@ -161,7 +161,7 @@ function TabPanel({
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
-  const { panelRef, onValueChange } = useTabs();
+  const { listRef, panelRef, onValueChange } = useTabs();
 
   return (
     <div
@@ -180,6 +180,19 @@ function TabPanel({
 
           const currentSnap =
             container.children[index].getAttribute("data-value");
+
+          const triggerEl = listRef.current?.querySelector(
+            `[data-value="${currentSnap}"]`,
+          ) as HTMLElement;
+
+          if (triggerEl) {
+            triggerEl.scrollIntoView({
+              behavior: "smooth",
+              block: "nearest",
+              inline: "start",
+            });
+          }
+
           onValueChange?.(currentSnap!);
         }
       }}
