@@ -4,7 +4,7 @@ import useSWR from "swr";
 import { Badge } from "@/components/ui/badge";
 import { getInitials } from "@/lib/utils";
 import { ThunderSDK } from "thunder-sdk";
-import { Trash2Icon, User2 } from "lucide-react";
+import { Trash2Icon } from "lucide-react";
 import Item from "@/components/Item";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -29,6 +29,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useMyPolicies } from "@/hooks/useMyPolicies";
+import { EmptyList } from "@/components/EmptyList";
 
 export function ListMembers() {
   const { t } = useTranslation();
@@ -36,7 +37,7 @@ export function ListMembers() {
   const { data: userSession } = authClient.useSession();
 
   const [searchParams] = useSearchParams();
-  const accountId = searchParams.get("account");
+  const tenantId = searchParams.get("tenant");
 
   const { myPolicies, isLoading } = useMyPolicies();
 
@@ -45,14 +46,14 @@ export function ListMembers() {
     isLoading: loadingMembers,
     isValidating,
     mutate,
-  } = useSWR("accountMembers.get", async () => {
-    if (accountId)
-      return await ThunderSDK.accountMembers.get({
+  } = useSWR("tenantMembers.get", async () => {
+    if (tenantId)
+      return await ThunderSDK.tenantMembers.get({
         params: {},
         query: {},
         axiosConfig: {
           headers: {
-            "X-ACCOUNT-ID": accountId,
+            "X-TENANT-ID": tenantId,
           },
         },
       });
@@ -69,13 +70,14 @@ export function ListMembers() {
       ) : members.length === 0 ? (
         <Empty>
           <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <User2 />
+            <EmptyMedia className="w-full">
+              <EmptyList />
             </EmptyMedia>
-            <EmptyTitle>No Members!</EmptyTitle>
+            <EmptyTitle>{t("No Members!")}</EmptyTitle>
             <EmptyDescription>
-              You haven&apos;t created any account members yet. Get started by
-              creating your first account member.
+              {t(
+                `You haven"t created any tenant members yet. Get started by  creating your first tenant member.`,
+              )}
             </EmptyDescription>
           </EmptyHeader>
         </Empty>
@@ -117,22 +119,23 @@ export function ListMembers() {
                     <div className="flex flex-col gap-1">
                       <div className="flex items-center gap-1">
                         <h3 className="font-medium ">{t("Email")}</h3>
-                        {item.isOwner && (
+                        {item.isOwner ? (
                           <Badge variant={"warning"}>{t("Owner")}</Badge>
+                        ) : (
+                          item.role && (
+                            <Badge
+                              variant={"outline"}
+                              className="capitalize max-w-fit"
+                            >
+                              {t(item.role)}
+                            </Badge>
+                          )
                         )}
                       </div>
                       <div className="flex flex-row gap-1">
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-sm text-muted-foreground line-clamp-1 break-all">
                           {item.email ?? t("You")}
                         </p>
-                        {item.role && (
-                          <Badge
-                            variant={"outline"}
-                            className="capitalize max-w-fit"
-                          >
-                            {t(item.role)}
-                          </Badge>
-                        )}
                       </div>
                     </div>
                   </div>
@@ -144,13 +147,13 @@ export function ListMembers() {
                       onValueChange={async (role) => {
                         if (role === item.role) return;
                         setLoading(true);
-                        const { status } = await ThunderSDK.accountMembers
+                        const { status } = await ThunderSDK.tenantMembers
                           .update({
                             params: { id: item._id },
                             body: { role: role! },
                             axiosConfig: {
                               headers: {
-                                "X-ACCOUNT-ID": accountId,
+                                "X-TENANT-ID": tenantId,
                               },
                             },
                           })
@@ -202,8 +205,13 @@ export function ListMembers() {
                             setLoading(true);
                             el?.classList.add("opacity-30");
 
-                            await ThunderSDK.accountMembers.del({
+                            await ThunderSDK.tenantMembers.del({
                               params: { id: item._id },
+                              axiosConfig: {
+                                headers: {
+                                  "X-TENANT-ID": tenantId,
+                                },
+                              },
                             });
 
                             el?.classList.add(

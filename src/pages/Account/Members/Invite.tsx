@@ -14,10 +14,10 @@ export const Invite = () => {
   const { data: session, isPending } = authClient.useSession();
 
   const { data, isLoading } = useSWR(
-    "accountMembers.create" + (session?.user.id ?? ""),
+    "tenantMembers.create" + (session?.user.id ?? ""),
     async () =>
       session
-        ? await ThunderSDK.accountMembers.create({
+        ? await ThunderSDK.tenantMembers.create({
             body: {
               invite: _id,
             },
@@ -50,7 +50,7 @@ export const Invite = () => {
               <h3 className="text-base font-medium">{t("You're in!")}</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 {t(
-                  "You've successfully joined the account. Head to the accounts section to get started.",
+                  "You've successfully joined the tenant. Head to the accounts section to get started.",
                 )}
               </p>
             </div>

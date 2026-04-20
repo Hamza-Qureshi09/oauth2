@@ -78,7 +78,7 @@ function Security() {
         right: () => {
           return (
             <Button
-              size="xs"
+              size="sm"
               onClick={async () => {
                 try {
                   const passkeyName = app?.name ?? "no name";

@@ -56,7 +56,7 @@ function Tabs({
 
       onValueChange?.(value);
     },
-    [panelRef, listRef],
+    [panelRef, listRef, onValueChange],
   );
 
   React.useEffect(() => {
@@ -64,7 +64,7 @@ function Tabs({
       scrollToActiveTab(defaultValue);
       isFirstRender.current = false;
     }
-  }, [defaultValue]);
+  }, [defaultValue, scrollToActiveTab]);
 
   const value = React.useMemo(
     () => ({

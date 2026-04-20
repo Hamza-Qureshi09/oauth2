@@ -21,14 +21,13 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group";
-import { Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSearchParams } from "react-router";
 import { isValidEmail } from "@/lib/utils";
 import { useMyPolicies } from "@/hooks/useMyPolicies";
 
 const DefaultForm: Parameters<
-  typeof ThunderSDK.accountInvites.create
+  typeof ThunderSDK.tenantInvites.create
 >[number]["body"] = {
   email: "",
   role: "",
@@ -48,7 +47,7 @@ export const CreateInvite = ({ onSuccess }: { onSuccess?: () => void }) => {
 
   const onSubmit = async (formData: typeof DefaultForm) => {
     try {
-      const { _id } = await ThunderSDK.accountInvites.create({
+      const { _id } = await ThunderSDK.tenantInvites.create({
         body: {
           email: formData.email,
           role: formData.role,
@@ -56,7 +55,7 @@ export const CreateInvite = ({ onSuccess }: { onSuccess?: () => void }) => {
         },
         axiosConfig: {
           headers: {
-            "X-ACCOUNT-ID": searchParams.get("account"),
+            "X-TENANT-ID": searchParams.get("tenant"),
           },
         },
       });
@@ -79,9 +78,8 @@ export const CreateInvite = ({ onSuccess }: { onSuccess?: () => void }) => {
         <Field>
           <FieldLabel htmlFor="recipient" className="text-base">
             {t("Invite Member")}
-            <Info className="size-4" />
           </FieldLabel>
-          <Field orientation={"horizontal"}>
+          <Field orientation={"responsive"}>
             <InputGroup>
               <InputGroupInput
                 type="email"
@@ -109,10 +107,13 @@ export const CreateInvite = ({ onSuccess }: { onSuccess?: () => void }) => {
                       onValueChange={field.onChange}
                       disabled={isLoading} // disabling while fetching data
                     >
-                      <SelectTrigger size={"xs"} className={"min-w-0"}>
+                      <SelectTrigger
+                        size="xs"
+                        className="w-full max-w-fit min-w-0 min-h-6"
+                      >
                         <SelectValue
                           placeholder={t("Select role")}
-                          className="capitalize"
+                          className="capitalize md:text-inherit text-xs"
                         />
                       </SelectTrigger>
 
@@ -135,7 +136,11 @@ export const CreateInvite = ({ onSuccess }: { onSuccess?: () => void }) => {
               </InputGroupAddon>
             </InputGroup>
             <Field className="w-32">
-              <Button type="submit" disabled={formState.isSubmitting}>
+              <Button
+                type="submit"
+                size={"sm"}
+                disabled={formState.isSubmitting}
+              >
                 {formState.isSubmitting && <Spinner />}
                 {t("Send Invite")}
               </Button>

@@ -21,7 +21,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
-import OAuth2 from "@/components/custom-icons/oauth2";
+import { EmptyList } from "@/components/EmptyList";
 
 function OAuth() {
   const { t } = useTranslation();
@@ -62,10 +62,10 @@ function OAuth() {
           <OAuthClientCardSkeleton />
         </SkeletonRepeater>
       ) : authClients.length === 0 ? (
-        <Empty>
+        <Empty className="justify-start mt-10">
           <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <OAuth2 />
+            <EmptyMedia className="w-full">
+              <EmptyList />
             </EmptyMedia>
             <EmptyTitle>No Oauth Clients!</EmptyTitle>
             <EmptyDescription>

@@ -1,3 +1,4 @@
+import { EmptyList } from "@/components/EmptyList";
 import Item from "@/components/Item";
 import {
   Accordion,
@@ -19,7 +20,6 @@ import { authClient } from "@/lib/auth";
 import { parseUserAgent } from "@/lib/utils";
 import { ActionSheetRef } from "@/registry/ActionSheet";
 import type { TDeviceInfo } from "@/typings";
-import { MonitorSmartphone } from "lucide-react";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
@@ -76,8 +76,8 @@ export function DeviceSessions() {
         {deviceSessions.length === 0 ? (
           <Empty>
             <EmptyHeader>
-              <EmptyMedia variant="icon">
-                <MonitorSmartphone />
+              <EmptyMedia className="w-full">
+                <EmptyList />
               </EmptyMedia>
               <EmptyTitle>No Sessions!</EmptyTitle>
               <EmptyDescription>
@@ -100,7 +100,7 @@ export function DeviceSessions() {
                     render={(props) => (
                       <button
                         {...props}
-                        className="cursor-pointer p-3 flex items-center justify-between gap-3 bg-background backdrop-blur-sm border/90 w-full group/accordion-trigger transition-all rounded-xs! group-first:rounded-t-lg! group-last:rounded-b-lg! mb-1"
+                        className="cursor-pointer p-3 flex items-center justify-between gap-3 bg-card backdrop-blur-sm border/90 w-full group/accordion-trigger transition-all rounded-xs! group-first:rounded-t-lg! group-last:rounded-b-lg! mb-1"
                       ></button>
                     )}
                   >

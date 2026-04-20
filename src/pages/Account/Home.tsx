@@ -35,7 +35,7 @@ import OAuth2 from "@/components/custom-icons/oauth2";
 import OAuth from "./Oauth";
 import Security from "./Security";
 import { toast } from "sonner";
-import { useLocation, useSearchParams } from "react-router";
+import { useSearchParams } from "react-router";
 import { useLoading } from "@/contexts/Loading";
 import React from "react";
 import UpdateProfile from "./UpdateProfile";
@@ -56,7 +56,6 @@ const tabs = [
 
 function Home() {
   const { t } = useTranslation();
-  const location = useLocation();
   const { setLoading } = useLoading();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -69,13 +68,13 @@ function Home() {
   const defaultValue = React.useMemo(() => {
     const search = searchParams.get("tab") || "home";
 
-    return search === "members" && !searchParams.get("account")
+    return search === "members" && !searchParams.get("tenant")
       ? "home"
       : search;
-  }, [location.search]);
+  }, [searchParams]);
 
   return (
-    <div className="w-full h-full bg-muted-foreground/5 dark:bg-muted/30">
+    <div className="w-full h-full">
       <Tabs
         defaultValue={defaultValue}
         onValueChange={(tab) => {

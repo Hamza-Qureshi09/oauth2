@@ -7,7 +7,7 @@ import { getInitials } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 import { ThunderSDK } from "thunder-sdk";
 import useSWR from "swr";
-import { Trash2Icon, User2 } from "lucide-react";
+import { Trash2Icon } from "lucide-react";
 import { Group } from "@/components/ui/group";
 import { CreateInvite } from "./CreateInvite";
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/empty";
 import CopyToClipboard from "@/components/CopyToClipboard";
 import { useSearchParams } from "react-router";
+import { EmptyList } from "@/components/EmptyList";
 
 export function ListInvites() {
   const { t } = useTranslation();
@@ -29,18 +30,18 @@ export function ListInvites() {
 
   const [searchParams] = useSearchParams();
 
-  const accountId = searchParams.get("account");
+  const tenantId = searchParams.get("tenant");
 
   const { data, isLoading, mutate, isValidating } = useSWR(
-    "accountInvites.get",
+    "tenantInvites.get",
     async () => {
-      if (accountId)
-        return await ThunderSDK.accountInvites.get({
+      if (tenantId)
+        return await ThunderSDK.tenantInvites.get({
           params: {},
           query: {},
           axiosConfig: {
             headers: {
-              "X-ACCOUNT-ID": accountId,
+              "X-TENANT-ID": tenantId,
             },
           },
         });
@@ -48,7 +49,7 @@ export function ListInvites() {
     },
   );
 
-  const AccountInvites = data?.results ?? [];
+  const TenantInvites = data?.results ?? [];
 
   return (
     <div className="flex flex-col gap-3 w-full">
@@ -57,18 +58,18 @@ export function ListInvites() {
 
       {isLoading || isValidating ? (
         <SkeletonRepeater count={3} className="max-w-lg mx-auto px-3">
-          <AccountInviteCardSkeleton />
+          <TenantInviteCardSkeleton />
         </SkeletonRepeater>
-      ) : AccountInvites.length === 0 ? (
-        <Empty className="">
+      ) : TenantInvites.length === 0 ? (
+        <Empty>
           <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <User2 />
+            <EmptyMedia className="w-full">
+              <EmptyList />
             </EmptyMedia>
-            <EmptyTitle>No Invites!</EmptyTitle>
+            <EmptyTitle>{t("No Invites!")}</EmptyTitle>
             <EmptyDescription>
-              You haven&apos;t created any invite yet. Get started by creating
-              your first invite by typing email & select role.
+              {t(`You haven"t created any invite yet. Get started by creating
+              your first invite by typing email & select role.`)}
             </EmptyDescription>
           </EmptyHeader>
         </Empty>
@@ -76,14 +77,14 @@ export function ListInvites() {
         <VirtualList
           className="h-[calc(100svh-283px)]"
           config={{
-            count: AccountInvites.length,
+            count: TenantInvites.length,
             paddingEnd: 500,
             estimateSize: () => 72,
           }}
         >
           {(virtualizer, items) =>
             items.map((virtualRow, idx) => {
-              const item = AccountInvites[virtualRow.index];
+              const item = TenantInvites[virtualRow.index];
               if (!item)
                 return (
                   <div key={idx + idx.toString()} className="py-10 bg-blue-300">
@@ -133,7 +134,7 @@ export function ListInvites() {
                   </div>
 
                   <div className="flex flex-col justify-between items-end gap-3">
-                    <Group aria-label="Account actions">
+                    <Group aria-label="Tenant actions">
                       <Button
                         variant="destructive-outline"
                         size="icon-sm"
@@ -146,11 +147,11 @@ export function ListInvites() {
                             setLoading(true);
                             el?.classList.add("opacity-30");
 
-                            await ThunderSDK.accountInvites.del({
+                            await ThunderSDK.tenantInvites.del({
                               params: { id: item._id },
                               axiosConfig: {
                                 headers: {
-                                  "X-ACCOUNT-ID": accountId,
+                                  "X-TENANT-ID": tenantId,
                                 },
                               },
                             });
@@ -162,7 +163,7 @@ export function ListInvites() {
                               "duration-500",
                             );
 
-                            AccountInvites.filter((v) => v._id !== item._id);
+                            TenantInvites.filter((v) => v._id !== item._id);
 
                             setTimeout(() => mutate(), 400);
                           } catch (error) {
@@ -186,7 +187,7 @@ export function ListInvites() {
   );
 }
 
-function AccountInviteCardSkeleton() {
+function TenantInviteCardSkeleton() {
   return (
     <Item>
       <Skeleton className="size-10 min-w-10 rounded-full" />

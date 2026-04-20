@@ -21,7 +21,7 @@ export const Members = () => {
           <div className="flex flex-col gap-2">
             <h3 className="text-xl font-medium">{t("Members")}</h3>
             <p className="text-sm text-muted-foreground">
-              {t("Manage your account members & invites")}
+              {t("Manage your tenant members & invites")}
             </p>
           </div>
         </div>

@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { ActionSheetRef } from "@/registry/ActionSheet";
 import { Skeleton } from "../../components/ui/skeleton";
 import { SkeletonRepeater } from "../../components/SkeletonRepeater";
+import { transformImage } from "@/lib/utils";
 
 export const SessionSwitcher = () => {
   const { t } = useTranslation();
@@ -48,7 +49,7 @@ export const SessionSwitcher = () => {
     <SheetPanel className="flex flex-col gap-3 h-full">
       <div className="flex flex-col justify-center items-center">
         <Avatar className="size-16 border mb-2">
-          <AvatarImage src={user?.image ?? undefined} />
+          <AvatarImage src={transformImage(user?.image)} />
           <AvatarFallback className="text-xl bg-violet-500 text-foreground">
             {user?.name ?? "Unnamed"}
           </AvatarFallback>
@@ -87,7 +88,7 @@ export const SessionSwitcher = () => {
               >
                 <div className="relative shrink-0">
                   <Avatar className="size-9 border">
-                    <AvatarImage src={u.image ?? undefined} />
+                    <AvatarImage src={transformImage(u.image)} />
                     <AvatarFallback
                       className={"text-foreground text-xs font-medium"}
                     >

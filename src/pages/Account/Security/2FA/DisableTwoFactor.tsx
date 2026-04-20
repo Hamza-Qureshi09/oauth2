@@ -54,7 +54,7 @@ function DisableTwoFactor() {
     <Dialog actionsRef={actionsRef}>
       <DialogTrigger
         render={(props) => (
-          <Button size="xs" variant="destructive" {...props}>
+          <Button size="sm" variant="destructive" {...props}>
             {t("Disable")}
           </Button>
         )}
